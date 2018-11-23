@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="SimpleWebGallery - A photo upload web app to collect images to be instantly shown on screen">
+    <meta name="author" content="Nicolas Inden">
+    {% block head %}{% endblock %}
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body {{ bodyclass }}>
+
+    <header>
+      <div class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container d-flex justify-content-between">
+          {% if title is defined %}
+          <a href="{{ title.href }}" class="navbar-brand d-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <strong>{{ title.name }}</strong>
+          {% else %}
+          <a href="/" class="navbar-brand d-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <strong>SimpleWebGallery</strong>
+            {% endif %}
+          </a>
+          <div class="btn-group">
+            {% for navlink in navlinks %}
+            <a type="button" class="btn btn-sm btn-outline-secondary" href="{{ navlink.href }}">{{ navlink.name }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main role="main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+        </p>
+        <p>SimpleWebGallery &copy; 2018 Nicolas Inden</p>
+        <p><a href="https://github.com/smashnet/SimpleWebGallery">Visit SimpleWebGallery on GitHub</a></p>
+      </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>

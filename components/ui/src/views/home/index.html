@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block content %}
+      <section class="jumbotron text-center">
+        <div class="container">
+          <h2 class="jumbotron-heading">Willkommen bei SimpleWebGallery</h2>
+          <p class="lead text-center">SimpleWebGallery hilft dir dabei Bilder eines ganz besonderen Anlasses zu sammeln, und direkt mit anderen zu teilen.</p>
+        </div>
+      </section>
+
+      <div class="album py-5 bg-light">
+        <div class="d-flex justify-content-center">
+          <div class="mx-4">
+            <div class="card mb-5 shadow-sm">
+              <img class="img-thumbnail" src="static/img/frontpage_1300px.jpg" alt="Thumbnail">
+              <div class="card-body">
+                <form class="form-group text-center" id="enterAlbumForm" action="/album/" onsubmit="createActionURL()">
+                  <div class="form-group mb-2">
+                    <input type="text" class="form-control form-control-sm" id="accessCodeInput" placeholder="Album-Code">
+                  </div>
+                  <button class="btn btn-primary btn-sm">
+                    <span class="fas fa-sign-in-alt"></span> zum Album
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+          <hr class="my-4">
+          <p class="lead text-center">Du möchtest sicher direkt zum einem bestimmten Album, um dort deine Bilder hochzuladen. Gib dazu oben den Album-Code ein, den du bekommen hast.<br/>
+            <a href=""><span class="fas fa-arrow-up"></span></a>
+          </p>
+      </div>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+@import "bootstrap/scss/bootstrap";
+@import "dropzone/dist/dropzone";
+@import "@fortawesome/fontawesome-free/css/all";
+
+.hide {
+  position:absolute;
+  top:-1px;
+  left:-1px;
+  width:1px;
+  height:1px;
+}
+
+.main {
+  $jumbotron-padding-y: 3rem;
+
+  .jumbotron {
+    padding-top: $jumbotron-padding-y;
+    padding-bottom: $jumbotron-padding-y;
+    margin-bottom: 0;
+  }
+  @media (min-width: 768px) {
+    .jumbotron {
+      padding-top: calc($jumbotron-padding-y * 2);
+      padding-bottom: calc($jumbotron-padding-y * 2);
+    }
+  }
+
+  .jumbotron p:last-child {
+    margin-bottom: 0;
+  }
+
+  .jumbotron .container {
+    max-width: 50rem;
+  }
+
+  footer {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  footer p {
+    margin-bottom: .25rem;
+  }
+
+}
+
+#partyUpload {
+  background: CornflowerBlue;
+}
