@@ -1,7 +1,7 @@
 # SWP specific
-components/ui/node_modules
-components/ui/static/js
-components/ui/static/css
+components/ui-service/node_modules
+components/ui-service/static/js
+components/ui-service/static/css
 *-data
 
 # SWP files from vim
