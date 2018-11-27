@@ -15,11 +15,18 @@ import sys
 
 import cherrypy
 
-from simplewebgallery_web import SimpleWebGalleryWeb
+from simplewebgallery import SimpleWebGallery
 
+def init_service():
+  ## TODO:
+  return
+
+def cleanup():
+  ## TODO:
+  return
 
 if __name__ == '__main__':
-  conf_webapp = {
+  conf = {
       '/': {
           'tools.sessions.on': False,
           'tools.staticdir.root': os.path.abspath(os.getcwd())
@@ -33,8 +40,9 @@ if __name__ == '__main__':
   cherrypy.server.socket_host = '0.0.0.0'
   cherrypy.server.socket_port = 8080
 
-  webapp = SimpleWebGalleryWeb()
+  cherrypy.engine.subscribe('start', init_service)
+  cherrypy.engine.subscribe('stop', cleanup)
 
-  cherrypy.tree.mount(SimpleWebGalleryWeb(), '/', conf_webapp)
+  webapp = SimpleWebGallery()
 
-  cherrypy.engine.start()
+  cherrypy.quickstart(webapp, '/', conf)

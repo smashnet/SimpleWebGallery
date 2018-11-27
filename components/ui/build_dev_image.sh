@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t simplewebgallery-dev .
+docker build -t swp-ui-service-dev .

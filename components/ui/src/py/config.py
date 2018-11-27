@@ -12,10 +12,12 @@ License: MIT License
 
 import os, os.path
 
+NAME = "ui-service"
 VERSION = "0.0.1"
-DB_STRING = os.path.abspath(os.getcwd()) + "/data/data.db"
-PHOTO_DIR = os.path.abspath(os.getcwd()) + "/data/img"
-PHOTO_THUMBS_DIR = os.path.abspath(os.getcwd()) + "/data/img/thumbs"
-VIEWS_PATH = os.path.abspath(os.getcwd()) + "/src/views"
+DATA_DIR = os.path.abspath(os.getcwd()) + "/%s-data/" % NAME
+DB_STRING = DATA_DIR + "database.db"
 
-ACCESS_CODE_CHARS = "0123456789abcdefghijklmnopqrstuvwxzy"
+# Further service dependent configuration:
+PHOTO_DIR = DATA_DIR + "img/"
+PHOTO_THUMBS_DIR = DATA_DIR + "thumbs/"
+VIEWS_PATH = os.path.abspath(os.getcwd()) + "/src/views"

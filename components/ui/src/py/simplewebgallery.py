@@ -23,7 +23,7 @@ from controller.slideshow import SlideshowController
 from controller.photos_admin import PhotosAdminController
 from controller.subscriptions_admin import SubscriptionsAdminController
 
-class SimpleWebGalleryWeb(object):
+class SimpleWebGallery(object):
 
   @cherrypy.expose
   def default(self, *args, **kwargs):

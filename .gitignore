@@ -1,3 +1,9 @@
+# SWP specific
+components/ui/node_modules
+components/ui/static/js
+components/ui/static/css
+*-data
+
 # SWP files from vim
 *.swp
 
@@ -105,8 +111,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
-node_modules/
-static/js/
-static/css/
-data/
