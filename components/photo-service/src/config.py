@@ -12,9 +12,8 @@ License: MIT License
 
 import os, os.path
 
-NAME = "album-service"
+NAME = "photo-service"
 VERSION = "0.0.1"
 DB_STRING = os.path.abspath(os.getcwd()) + "/%s-data/database.db" % NAME
 
 # Further service dependent configuration:
-ACCESS_CODE_CHARS = "0123456789abcdefghijklmnopqrstuvwxzy"

@@ -1,5 +1,5 @@
 '''
-album_service.py
+album_service_root.py
 
 Album service of SimpleWebGallery that manages albums of photos.
 
@@ -21,11 +21,18 @@ import hashlib
 import config
 import common
 
-@cherrypy.expose
-class AlbumServiceMultiItems(object):
+class AlbumServiceRoot(object):
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
-  def GET(self, *args, **kwargs):
-    ## TODO:
-    return [{"message": "Hello world! This is the album service!"}]
+  @cherrypy.expose
+  def index(self, *args, **kwargs):
+    return {"message": "Hello world!",
+            "service": config.NAME,
+            "version": config.VERSION}
+
+  @cherrypy.tools.accept(media='application/json')
+  @cherrypy.tools.json_out()
+  @cherrypy.expose
+  def default(self, *args, **kwargs):
+    return {"message": "Page not found"}

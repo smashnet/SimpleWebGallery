@@ -1,5 +1,5 @@
 '''
-swp_album_service.py
+album_service_albums.py
 
 Album service of SimpleWebGallery that manages albums of photos.
 
@@ -22,7 +22,7 @@ import config
 import common
 
 @cherrypy.expose
-class AlbumServiceSingleItem(object):
+class AlbumServiceAlbums(object):
 
   @staticmethod
   def albumExists(accessCode):

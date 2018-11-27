@@ -1,7 +1,7 @@
 '''
-thumbnail_service.py
+thumbnail_service_thumbnails.py
 
-Thumbnail service responsible for creating thumbnails of newly uploaded photos.
+Handles requests regarding thumbnails.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
@@ -11,15 +11,18 @@ License: MIT License
 '''
 
 import os, os.path
+from datetime import datetime
 import uuid
 
 import cherrypy
 import sqlite3
+import hashlib
 
 import config
+import common
 
 @cherrypy.expose
-class ThumbnailService(object):
+class ThumbnailServiceThumbnails(object):
 
   @staticmethod
   def getThumbURLs():
@@ -29,20 +32,23 @@ class ThumbnailService(object):
       return ["/thumbnail/%s" % item[0] for item in intermediate]
 
   @cherrypy.tools.accept(media='application/json')
-  def GET(self, photouuid=None, size='512px'):
+  def GET(self, uuid=None, size=config.THUMB_SIZES[0]):
+    # Check if uuid is None
+    if uuid == None:
+      return "No uuid given"
     # Check if is valid uuid
     try:
-      uuid.UUID(photouuid, version=4)
+      uuid.UUID(uuid, version=4)
     except ValueError:
       return "Not a valid uuid"
 
     # Check if is valid size
-    if size == "128px" or size == "512px" or size == "1024px":
+    if size in config.THUMB_SIZES:
       # Get file information from DB
       with sqlite3.connect(config.DB_STRING) as c:
-        r = c.execute("SELECT * FROM files WHERE uuid=?", (str(photouuid),))
+        r = c.execute("SELECT * FROM files WHERE uuid=?", (str(uuid),))
         res = r.fetchone()
         fn, filext = os.path.splitext(res[1])
-        with open(config.PHOTO_THUMBS_DIR + "/%s_%s%s" % (photouuid, size, filext), "rb") as the_file:
+        with open(config.PHOTO_THUMBS_DIR + "/%s_%s%s" % (uuid, size, filext), "rb") as the_file:
           cherrypy.response.headers['Content-Type'] = 'image/jpeg'
           return the_file.read()

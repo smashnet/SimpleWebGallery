@@ -1,7 +1,7 @@
 '''
 run.py
 
-Run file for album service.
+Run file for subscription service.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
@@ -14,8 +14,8 @@ import os, os.path
 
 import cherrypy
 
-from album_service_root import AlbumServiceRoot
-from album_service_albums import AlbumServiceAlbums
+from subscription_service_root import SubscriptionServiceRoot
+from subscription_service_subscriptions import SubscriptionServiceSubscriptions
 
 def init_service():
   ## TODO:
@@ -31,7 +31,7 @@ if __name__ == '__main__':
           'tools.sessions.on': False,
           'tools.staticdir.root': os.path.abspath(os.getcwd())
       },
-      '/albums': {
+      '/subscriptions': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
           'tools.response_headers.on': True,
           'tools.response_headers.headers': [('Content-Type', 'application/json')]
@@ -44,7 +44,7 @@ if __name__ == '__main__':
   cherrypy.engine.subscribe('start', init_service)
   cherrypy.engine.subscribe('stop', cleanup)
 
-  service = AlbumServiceRoot()
-  service.albums = AlbumServiceAlbums()
+  service = SubscriptionServiceRoot()
+  service.subscriptions = SubscriptionServiceSubscriptions()
 
-  cherrypy.quickstart(service, '/album-service', conf)
+  cherrypy.quickstart(service, '/subscription-service', conf)

@@ -1,7 +1,7 @@
 '''
-album_service_default.py
+thumbnail_service_root.py
 
-Album service of SimpleWebGallery that manages albums of photos.
+Thumbnail service of SimpleWebGallery that manages thumbnails of photos.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
@@ -21,7 +21,7 @@ import hashlib
 import config
 import common
 
-class AlbumService(object):
+class ThumbnailServiceRoot(object):
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()

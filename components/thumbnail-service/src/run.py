@@ -1,7 +1,7 @@
 '''
 run.py
 
-Run file for album service.
+Run file for thumbnail service.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
@@ -14,8 +14,8 @@ import os, os.path
 
 import cherrypy
 
-from album_service_root import AlbumServiceRoot
-from album_service_albums import AlbumServiceAlbums
+from thumbnail_service_root import ThumbnailServiceRoot
+from thumbnail_service_thumbnails import ThumbnailServiceThumbnails
 
 def init_service():
   ## TODO:
@@ -31,10 +31,8 @@ if __name__ == '__main__':
           'tools.sessions.on': False,
           'tools.staticdir.root': os.path.abspath(os.getcwd())
       },
-      '/albums': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
-          'tools.response_headers.on': True,
-          'tools.response_headers.headers': [('Content-Type', 'application/json')]
+      '/thumbnails': {
+          'request.dispatch': cherrypy.dispatch.MethodDispatcher()
       }
   }
 
@@ -44,7 +42,7 @@ if __name__ == '__main__':
   cherrypy.engine.subscribe('start', init_service)
   cherrypy.engine.subscribe('stop', cleanup)
 
-  service = AlbumServiceRoot()
-  service.albums = AlbumServiceAlbums()
+  service = ThumbnailServiceRoot()
+  service.thumbnails = ThumbnailServiceThumbnails()
 
-  cherrypy.quickstart(service, '/album-service', conf)
+  cherrypy.quickstart(service, '/thumbnail-service', conf)

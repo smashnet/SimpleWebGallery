@@ -1,7 +1,7 @@
 '''
-photo_service.py
+photo_service_photos.py
 
-Photo service of SimpleWebGallery that receives new photos and serves them.
+Handles requests regarding photos.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
@@ -17,107 +17,18 @@ import uuid
 import cherrypy
 import sqlite3
 import hashlib
-from PIL import Image, ExifTags
 
 import config
 import common
 
 @cherrypy.expose
-class PhotoService(object):
-
-  @staticmethod
-  def albumExists(accessCode=None):
-    return True
-
-  @staticmethod
-  def getAlbumInformation(accessCode=None):
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, name, accesscode, creator, dateCreated FROM albums WHERE accesscode=?", (accessCode,))
-      res = common.DBtoDict(r)
-
-  @staticmethod
-  def getListOfAllPhotos():
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, filename_orig, content_type, md5, uploader, dateUploaded FROM files")
-      res = common.DBtoDict(r)
-      for item in res:
-        # Add thumburl
-        item["thumburl"] = "/thumbnail/%s" % item["uuid"]
-        # Add photourl
-        item["photourl"] = "/photo/%s" % item["uuid"]
-      if len(res) == 0:
-        return None
-      return res
-
-  def imageExists(self, md5):
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT * FROM files WHERE md5=? LIMIT 1", (md5,))
-      if len(r.fetchall()) == 0:
-        return False
-      else:
-        return True
-
-  def rotateIfNecessary(self, img):
-    # Rotate image based on exif orientation
-    try:
-      image=Image.open(config.PHOTO_DIR + "/%s" % img)
-      for orientation in ExifTags.TAGS.keys():
-        if ExifTags.TAGS[orientation]=='Orientation':
-          break
-      exif=dict(image._getexif().items())
-
-      if exif[orientation] == 3:
-        image=image.rotate(180, expand=True)
-      elif exif[orientation] == 6:
-        image=image.rotate(270, expand=True)
-      elif exif[orientation] == 8:
-        image=image.rotate(90, expand=True)
-      image.save(config.PHOTO_DIR + "/%s" % img)
-      image.close()
-
-    except (AttributeError, KeyError, IndexError):
-      # cases: image don't have getexif
-      pass
-
-  def createThumbs(self, img):
-    small = 128, 128
-    medium = 512, 512
-    large = 1024, 1024
-    fn, filext = os.path.splitext(img)
-    image = Image.open(config.PHOTO_DIR + "/%s" % img)
-
-    thumb_small = image.copy()
-    thumb_small.thumbnail(small)
-    thumb_small.save(config.PHOTO_THUMBS_DIR + "/%s_128px%s" %(fn, filext))
-
-    thumb_mid = image.copy()
-    thumb_mid.thumbnail(medium)
-    thumb_mid.save(config.PHOTO_THUMBS_DIR + "/%s_512px%s" %(fn, filext))
-
-    thumb_large = image.copy()
-    thumb_large.thumbnail(large)
-    thumb_large.save(config.PHOTO_THUMBS_DIR + "/%s_1024px%s" %(fn, filext))
-
-  def deleteAllPhotos(self):
-    # Delete photos from storage
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT filename FROM files")
-      res = r.fetchall()
-      for filename in res:
-        try:
-          fn, filext = os.path.splitext(filename[0])
-          os.remove(config.PHOTO_DIR + "/%s" % filename[0])
-          os.remove(config.PHOTO_THUMBS_DIR + "/%s_128px%s" % (fn, filext))
-          os.remove(config.PHOTO_THUMBS_DIR + "/%s_512px%s" % (fn, filext))
-          os.remove(config.PHOTO_THUMBS_DIR + "/%s_1024px%s" % (fn, filext))
-        except FileNotFoundError:
-          pass
-    # Delete photos from DB
-    with sqlite3.connect(config.DB_STRING) as c:
-      c.execute("DELETE FROM files")
+class PhotoServicePhotos(object):
 
   @cherrypy.tools.accept(media='application/json')
   def GET(self, photouuid=None):
+    # Check if uuid given
+    if photouuid == None:
+      return "No uuid given"
     # Check if is valid uuid
     try:
       uuid.UUID(photouuid, version=4)
@@ -134,8 +45,7 @@ class PhotoService(object):
         return the_file.read()
 
   @cherrypy.tools.json_out()
-  def POST(self, *args, **kwargs):
-    print(args)
+  def POST(self, file):
     size = 0
     whole_data = bytearray()
     filehash = hashlib.md5()

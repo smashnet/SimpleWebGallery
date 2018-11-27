@@ -1,7 +1,7 @@
 '''
-subscription_service.py
+subscription_service_subscriptions.py
 
-SimpleWebGallerys subscription service is responsible for holding subscriber information.
+Handles requests regarding subscriptions.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
@@ -10,21 +10,20 @@ GPG-Fingerprint: A757 5741 FD1E 63E8 357D  48E2 3C68 AE70 B2F8 AA17
 License: MIT License
 '''
 
+import os, os.path
 from datetime import datetime
 import uuid
-import re
 
 import cherrypy
 import sqlite3
+import hashlib
 
 import config
 import common
 
-@cherrypy.expose
-class SubscriptionService(object):
+class SubscriptionServiceSubscriptions(object):
 
-  @staticmethod
-  def getListOfAllSubscriptions():
+  def getListOfAllSubscriptions(self):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT * FROM subscribers")
       res = common.DBtoDict(r)
@@ -53,14 +52,11 @@ class SubscriptionService(object):
         return {"error": "UUID unknown"}
 
   @cherrypy.tools.json_out()
+  @cherrypy.expose
   def GET(self, subscriberuuid=None):
     # If no parameter is provided -> error
     if subscriberuuid is None:
       return {"error": "No UUID"}
-
-    # If parameter is "all" return all subscriptions
-    if subscriberuuid == "all":
-      return SubscriptionService.getListOfAllSubscriptions()
 
     # Check if is valid uuid
     try:
@@ -72,6 +68,7 @@ class SubscriptionService(object):
     return self.getSingleSubscriber(subscriberuuid)
 
   @cherrypy.tools.json_out()
+  @cherrypy.expose
   def POST(self, mailaddress):
     # Check mail validity
     if not re.match(r"[^@]+@[^@]+\.[^@]+", mailaddress):
@@ -90,6 +87,7 @@ class SubscriptionService(object):
       return {"error": "You already subscribed!"}
 
   @cherrypy.tools.json_out()
+  @cherrypy.expose
   def DELETE(self, userid):
     # Delete user from DB
     if len(userid) == 0:
