@@ -10,7 +10,8 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-VOLUME ["/usr/src/app/data"]
+RUN npm install
+RUN npm run compile
 
 EXPOSE 8080
 
