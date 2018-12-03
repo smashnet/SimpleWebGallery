@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t swp-thumbnail-service-dev .
+docker build -f Dockerfile.dev -t swp-thumbnail-service-dev .

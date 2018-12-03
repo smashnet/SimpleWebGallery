@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t swp-photo-service-dev .
+docker build .f Dockerfile.dev -t swp-photo-service-dev .
