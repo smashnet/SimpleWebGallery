@@ -8,8 +8,6 @@ services:
       - ./redis-data:/data
     ports:
       - 6379:6379
-    networks:
-      - swg-net
     entrypoint: redis-server --appendonly yes
 
   album-service:
@@ -61,6 +59,3 @@ services:
       - ./components/ui-service/:/usr/src/app/
     ports:
       - 8080:8080
-
-networks:
-  swg-net:

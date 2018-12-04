@@ -16,7 +16,7 @@ services:
     build: ./components/album-service
     restart: always
     volumes:
-      - album-service-data:/usr/src/app/data
+      - album-service-data:/usr/src/app/album-service-data
     ports:
       - 10000:8080
 
@@ -24,7 +24,7 @@ services:
     build: ./components/photo-service
     restart: always
     volumes:
-      - photo-service-data:/usr/src/app/data
+      - photo-service-data:/usr/src/app/photo-service-data
     ports:
       - 10001:8080
 
@@ -32,7 +32,7 @@ services:
     build: ./components/subscription-service
     restart: always
     volumes:
-      - subscription-service-data:/usr/src/app/data
+      - subscription-service-data:/usr/src/app/subscription-service-data
     ports:
       - 10002:8080
 
@@ -40,7 +40,7 @@ services:
     build: ./components/thumbnail-service
     restart: always
     volumes:
-      - thumbnail-service-data:/usr/src/app/data
+      - thumbnail-service-data:/usr/src/app/thumbnail-service-data
     ports:
       - 10003:8080
 
