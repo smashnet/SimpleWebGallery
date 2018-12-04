@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t swp-ui-service-dev .
+docker build -t swg-ui-service-dev .

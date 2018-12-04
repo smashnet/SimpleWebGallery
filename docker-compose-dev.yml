@@ -13,40 +13,52 @@ services:
     entrypoint: redis-server --appendonly yes
 
   album-service:
-    build: ./components/album-service
+    build:
+      context: ./components/album-service
+      dockerfile: Dockerfile.dev
     restart: always
     volumes:
-      - album-service-data:/usr/src/app/data
+      - ./components/album-service/:/usr/src/app/
     ports:
       - 10000:8080
 
   photo-service:
-    build: ./components/photo-service
+    build:
+      context: ./components/photo-service
+      dockerfile: Dockerfile.dev
     restart: always
     volumes:
-      - photo-service-data:/usr/src/app/data
+      - ./components/photo-service/:/usr/src/app/
     ports:
       - 10001:8080
 
   subscription-service:
-    build: ./components/subscription-service
+    build:
+      context: ./components/subscription-service
+      dockerfile: Dockerfile.dev
     restart: always
     volumes:
-      - subscription-service-data:/usr/src/app/data
+      - ./components/subscription-service/:/usr/src/app/
     ports:
       - 10002:8080
 
   thumbnail-service:
-    build: ./components/thumbnail-service
+    build:
+      context: ./components/thumbnail-service
+      dockerfile: Dockerfile.dev
     restart: always
     volumes:
-      - thumbnail-service-data:/usr/src/app/data
+      - ./components/thumbnail-service/:/usr/src/app/
     ports:
       - 10003:8080
 
   ui-service:
-    build: ./components/ui-service
+    build:
+      context: ./components/ui-service
+      dockerfile: Dockerfile.dev
     restart: always
+    volumes:
+      - ./components/ui-service/:/usr/src/app/
     ports:
       - 8080:8080
 
