@@ -15,6 +15,8 @@ services:
       context: ./components/album-service
       dockerfile: Dockerfile.dev
     restart: always
+    environment:
+      - PYTHONUNBUFFERED=0
     volumes:
       - ./components/album-service/:/usr/src/app/
     ports:
@@ -25,6 +27,8 @@ services:
       context: ./components/photo-service
       dockerfile: Dockerfile.dev
     restart: always
+    environment:
+      - PYTHONUNBUFFERED=0
     volumes:
       - ./components/photo-service/:/usr/src/app/
     ports:
@@ -35,6 +39,8 @@ services:
       context: ./components/subscription-service
       dockerfile: Dockerfile.dev
     restart: always
+    environment:
+      - PYTHONUNBUFFERED=0
     volumes:
       - ./components/subscription-service/:/usr/src/app/
     ports:
@@ -45,6 +51,8 @@ services:
       context: ./components/thumbnail-service
       dockerfile: Dockerfile.dev
     restart: always
+    environment:
+      - PYTHONUNBUFFERED=0
     volumes:
       - ./components/thumbnail-service/:/usr/src/app/
     ports:
@@ -55,6 +63,8 @@ services:
       context: ./components/ui-service
       dockerfile: Dockerfile.dev
     restart: always
+    environment:
+      - PYTHONUNBUFFERED=0
     volumes:
       - ./components/ui-service/:/usr/src/app/
     ports:

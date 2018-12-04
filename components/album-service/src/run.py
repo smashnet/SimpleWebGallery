@@ -13,16 +13,61 @@ License: MIT License
 import os, os.path
 
 import cherrypy
+import redis
+import sqlite3
+
+import common
+import config
+import message_handlers
 
 from album_service_root import AlbumServiceRoot
 from album_service_albums import AlbumServiceAlbums
 
 def init_service():
-  ## TODO:
-  return
+  ## Init local data storage
+  ## Create directories if not existing yet
+  if not os.path.exists(config.DATA_DIR):
+    os.makedirs(config.DATA_DIR)
+
+  ## Init redis communication
+  common.myRedis = redis.Redis(host='redis', port=6379, db=0)
+  common.pubSub = common.myRedis.pubsub(ignore_subscribe_messages=True)
+
+  ## Subscribe to channels
+  common.pubSub.subscribe(**{'general': message_handlers.handle_general_messages})
+  common.pubSub.subscribe(**{'photos': message_handlers.handle_photo_messages})
+  common.pubSub.subscribe(**{'albums': message_handlers.handle_album_messages})
+  common.pubSub.subscribe(**{'subscribers': message_handlers.handle_subscriber_messages})
+
+  ## Listen for events in separate thread
+  common.pubSubThread = common.pubSub.run_in_thread(sleep_time=0.001)
+
+  ## Say hi
+  common.myRedis.publish('general', '%s: Here we are!' % config.NAME)
+
+  ## Init DB and create tables if not yet existing
+  with sqlite3.connect(config.DB_STRING) as con:
+    con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
+    con.execute("CREATE TABLE IF NOT EXISTS albums (uuid, filename, extension, content_type, md5, uploader, dateUploaded)")
+
+  ## Check DB version
+  with sqlite3.connect(config.DB_STRING) as con:
+    r = con.execute("SELECT value FROM general WHERE key='version' LIMIT 1")
+    res = r.fetchall()
+    if len(res) == 0:
+      con.execute("INSERT INTO general VALUES (?, ?)", ["version", config.VERSION])
+    elif config.VERSION == res[0][0]:
+      # Program and DB run same version, everything OK!
+      pass
+    else:
+      # Different versions! Please migrate!
+      # TODO
+      print("Running ? v? with DB v?! Exiting...", (config.NAME, config.VERSION, res[0][0]))
+      sys.exit(100)
 
 def cleanup():
-  ## TODO:
+  ## Stop redis PubSub Thread:
+  common.pubSubThread.stop()
   return
 
 if __name__ == '__main__':

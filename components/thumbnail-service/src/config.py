@@ -19,3 +19,4 @@ DB_STRING = DATA_DIR + "database.db"
 
 # Further service dependent configuration:
 THUMB_SIZES = ["256px", "512px", "1024px"]
+THUMB_DIR = DATA_DIR + "thumbs/"

@@ -18,6 +18,7 @@ import sqlite3
 
 import common
 import config
+import message_handlers
 
 from photo_service_root import PhotoServiceRoot
 from photo_service_photos import PhotoServicePhotos
@@ -30,8 +31,19 @@ def init_service():
 
   ## Init redis communication
   common.myRedis = redis.Redis(host='redis', port=6379, db=0)
-  common.pubSub = common.myRedis.pubsub()
-  common.pubSub.subscribe('photos')
+  common.pubSub = common.myRedis.pubsub(ignore_subscribe_messages=True)
+
+  ## Subscribe to channels
+  common.pubSub.subscribe(**{'general': message_handlers.handle_general_messages})
+  common.pubSub.subscribe(**{'photos': message_handlers.handle_photo_messages})
+  common.pubSub.subscribe(**{'albums': message_handlers.handle_album_messages})
+  common.pubSub.subscribe(**{'subscribers': message_handlers.handle_subscriber_messages})
+
+  ## Listen for events in separate thread
+  common.pubSubThread = common.pubSub.run_in_thread(sleep_time=0.001)
+
+  ## Say hi
+  common.myRedis.publish('general', '%s: Here we are!' % config.NAME)
 
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
@@ -54,7 +66,8 @@ def init_service():
       sys.exit(100)
 
 def cleanup():
-  ## TODO:
+  ## Stop redis PubSub Thread:
+  common.pubSubThread.stop()
   return
 
 if __name__ == '__main__':

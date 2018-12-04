@@ -14,7 +14,8 @@ import os, os.path
 
 NAME = "album-service"
 VERSION = "0.0.1"
-DB_STRING = os.path.abspath(os.getcwd()) + "/%s-data/database.db" % NAME
+DATA_DIR = os.path.abspath(os.getcwd()) + "/%s-data/" % NAME
+DB_STRING = DATA_DIR + "database.db"
 
 # Further service dependent configuration:
 ACCESS_CODE_CHARS = "0123456789abcdefghijklmnopqrstuvwxzy"
