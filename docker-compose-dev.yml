@@ -5,7 +5,7 @@ services:
     image: redis
     restart: always
     volumes:
-      - redis-data:/data
+      - ./redis-data:/data
     ports:
       - 6379:6379
     networks:
@@ -61,13 +61,6 @@ services:
       - ./components/ui-service/:/usr/src/app/
     ports:
       - 8080:8080
-
-volumes:
-  redis-data:
-  album-service-data:
-  photo-service-data:
-  subscription-service-data:
-  thumbnail-service-data:
 
 networks:
   swg-net:
