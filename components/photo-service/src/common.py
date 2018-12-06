@@ -20,11 +20,3 @@ def DBtoDict(res):
   descs = [desc[0] for desc in res.description]
   intermediate = res.fetchall()
   return [dict(zip(descs, item)) for item in intermediate]
-
-def isValidAccessCode(accessCode):
-  if len(accessCode) != 8:
-    return False
-  for char in accessCode:
-    if char not in config.ACCESS_CODE_CHARS:
-      return False
-  return True

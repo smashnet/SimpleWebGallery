@@ -13,16 +13,59 @@ License: MIT License
 import os, os.path
 from datetime import datetime
 import uuid
+import json
 
 import cherrypy
 import sqlite3
 import hashlib
+from PIL import Image, ExifTags
 
 import config
 import common
 
 @cherrypy.expose
 class PhotoServicePhotos(object):
+
+  def receive_new_photo(self, file):
+    size = 0
+    whole_data = bytearray()
+    filehash = hashlib.md5()
+
+    while True:
+      data = file.file.read(8192)
+      filehash.update(data)
+      whole_data += data # Save data chunks in ByteArray whole_data
+
+      if not data:
+        break
+      size += len(data)
+
+    img_uuid = str(uuid.uuid4())
+    fn, filext = os.path.splitext(file.filename)
+    res = {"id": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "dateUploaded": str(datetime.utcnow())}
+    return res, whole_data
+
+  def rotate_if_necessary(self, info):
+    # Rotate image based on exif orientation
+    try:
+      image=Image.open(config.PHOTO_DIR + "/%s%s" % (info['id'], info['extension']))
+      for orientation in ExifTags.TAGS.keys():
+        if ExifTags.TAGS[orientation]=='Orientation':
+          break
+      exif=dict(image._getexif().items())
+
+      if exif[orientation] == 3:
+        image=image.rotate(180, expand=True)
+      elif exif[orientation] == 6:
+        image=image.rotate(270, expand=True)
+      elif exif[orientation] == 8:
+        image=image.rotate(90, expand=True)
+      image.save(config.PHOTO_DIR + "/%s%s" % (info['id'], info['extension']))
+      image.close()
+
+    except (AttributeError, KeyError, IndexError):
+      # cases: image don't have getexif
+      pass
 
   @cherrypy.tools.accept(media='application/json')
   def GET(self, photouuid=None):
@@ -46,43 +89,33 @@ class PhotoServicePhotos(object):
 
   @cherrypy.tools.json_out()
   def POST(self, file):
-    size = 0
-    whole_data = bytearray()
-    filehash = hashlib.md5()
+    ## Receive file
+    info, data = self.receive_new_photo(file)
 
-    while True:
-      data = file.file.read(8192)
-      filehash.update(data)
-      whole_data += data # Save data chunks in ByteArray whole_data
+    print(info)
 
-      if not data:
-        break
-      size += len(data)
+    ## Write to storage
+    with open(config.PHOTO_DIR + "/%s%s" % (info["id"],info["extension"]), "wb") as written_file:
+      written_file.write(data)
 
-    img_uuid = str(uuid.uuid4())
-    fn, filext = os.path.splitext(file.filename)
-    res = {"id": img_uuid, "filename_orig": file.filename, "filename": '%s%s' % (img_uuid, filext), "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "dateUploaded": str(datetime.utcnow())}
+    ## Rotate image if necessary
+    self.rotate_if_necessary(info)
 
+    ## Save photo in DB
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [info['id'], info['filename'], info['extension'], info['content_type'], info['md5'], info['uploader'], info['dateUploaded']])
 
-    if not self.imageExists(res['md5']):
-      written_file = open(config.PHOTO_DIR + "/%s" % res["filename"], "wb") # open file in write bytes mode
-      written_file.write(whole_data) # write file
+    ## Create task to create thumbnails
+    common.myRedis.set(info['id'], bytes(data)) # Save data to redis, key: uuid
+    taskitem = {"uuid": info['id']}
+    common.myRedis.lpush("create-thumbnail", json.dumps(taskitem)) # Add task to list
 
-      # Rotate image if necessary
-      self.rotateIfNecessary(res['filename'])
+    ##TODO: Create task to add photo to album
+    taskitem = {"uuid": info['id'], "album": "0"}
+    common.myRedis.lpush("add-to-album", json.dumps(taskitem)) # Add task to list
 
-      # Create thumbnails
-      self.createThumbs(res['filename'])
-
-      with sqlite3.connect(config.DB_STRING) as c:
-        c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?)",
-          [res['id'], res['filename'], res['filename_orig'], res['content_type'], res['md5'], res['uploader'], res['dateUploaded']])
-
-      return res
-    else:
-      res = {"error": "Image already existing!"}
-      print(res)
-      return res
+    return info
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
@@ -115,3 +148,6 @@ class PhotoServicePhotos(object):
 
 
         return {"deleted": photouuid}
+
+  def OPTIONS(self):
+    return None

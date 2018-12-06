@@ -1,3 +1,4 @@
 redis
 CherryPy
 Jinja2
+requests

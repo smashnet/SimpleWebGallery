@@ -11,6 +11,7 @@ License: MIT License
 '''
 
 import cherrypy
+import requests
 
 import common
 from controller.base import BaseController
@@ -28,7 +29,8 @@ class AlbumController(BaseController):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
     # create photo upload url
-    template_vars["photo_upload_url"] = "%s/photo" % args[0]
+    #template_vars["photo_upload_url"] = "%s/photo" % args[0]
+    template_vars["photo_upload_url"] = "http://localhost:10001/photo-service/photos"
 
     # Set nav items
     template_vars["navlinks"] = [
@@ -103,3 +105,7 @@ class AlbumController(BaseController):
     # TODO: Check with AlbumService if album with this code exists
     if len(args) == 0 or not common.isValidAccessCode(args[0]):
       return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    # Forward photo to photo-service
+    files = {'file': (file.filename, file.file, file.content_type)}
+    r = requests.post("http://photo-service:8080/photo-service/photos", files = files )

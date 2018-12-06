@@ -23,6 +23,18 @@ import message_handlers
 from photo_service_root import PhotoServiceRoot
 from photo_service_photos import PhotoServicePhotos
 
+def CORS():
+  if cherrypy.request.method == 'OPTIONS':
+    # preflign request
+    # see http://www.w3.org/TR/cors/#cross-origin-request-with-preflight-0
+    cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST'
+    cherrypy.response.headers['Access-Control-Allow-Headers'] = 'cache-control,x-requested-with'
+    cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
+    # tell CherryPy no avoid normal handler
+    return True
+  else:
+    cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
+
 def init_service():
   ## Init local data storage
   ## Create directories if not existing yet
@@ -35,11 +47,8 @@ def init_service():
 
   ## Subscribe to channels
   common.pubSub.subscribe(**{'general': message_handlers.handle_general_messages})
-  common.pubSub.subscribe(**{'photos': message_handlers.handle_photo_messages})
-  common.pubSub.subscribe(**{'albums': message_handlers.handle_album_messages})
-  common.pubSub.subscribe(**{'subscribers': message_handlers.handle_subscriber_messages})
 
-  ## Listen for events in separate thread
+  ## Listen for pubsub events in separate thread
   common.pubSubThread = common.pubSub.run_in_thread(sleep_time=0.001)
 
   ## Say hi
@@ -77,7 +86,8 @@ if __name__ == '__main__':
           'tools.staticdir.root': os.path.abspath(os.getcwd())
       },
       '/photos': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher()
+          'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+          'tools.CORS.on': True
       }
   }
 
@@ -90,4 +100,5 @@ if __name__ == '__main__':
   service = PhotoServiceRoot()
   service.photos = PhotoServicePhotos()
 
+  cherrypy.tools.CORS = cherrypy.Tool('before_finalize', CORS)
   cherrypy.quickstart(service, '/photo-service', conf)
