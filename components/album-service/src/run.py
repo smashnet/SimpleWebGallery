@@ -35,9 +35,6 @@ def init_service():
 
   ## Subscribe to channels
   common.pubSub.subscribe(**{'general': message_handlers.handle_general_messages})
-  common.pubSub.subscribe(**{'photos': message_handlers.handle_photo_messages})
-  common.pubSub.subscribe(**{'albums': message_handlers.handle_album_messages})
-  common.pubSub.subscribe(**{'subscribers': message_handlers.handle_subscriber_messages})
 
   ## Listen for events in separate thread
   common.pubSubThread = common.pubSub.run_in_thread(sleep_time=0.001)
@@ -48,7 +45,9 @@ def init_service():
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
-    con.execute("CREATE TABLE IF NOT EXISTS albums (uuid, filename, extension, content_type, md5, uploader, dateUploaded)")
+    con.execute("CREATE TABLE IF NOT EXISTS albums (uuid, name, accesscode, creator, created, photos, subscriptions)")
+    con.execute("CREATE TABLE IF NOT EXISTS album_photos (albumid, photoid)")
+    con.execute("CREATE TABLE IF NOT EXISTS album_subscribers (albumid, subscriberid)")
 
   ## Check DB version
   with sqlite3.connect(config.DB_STRING) as con:

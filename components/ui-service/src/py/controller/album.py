@@ -14,6 +14,7 @@ import cherrypy
 import requests
 
 import common
+import config
 from controller.base import BaseController
 
 class AlbumController(BaseController):
@@ -30,7 +31,7 @@ class AlbumController(BaseController):
 
     # create photo upload url
     #template_vars["photo_upload_url"] = "%s/photo" % args[0]
-    template_vars["photo_upload_url"] = "http://localhost:10001/photo-service/photos"
+    template_vars["photo_upload_url"] = "http://%s/photo-service/photos" % config.PHOTO_SERVICE_URL
 
     # Set nav items
     template_vars["navlinks"] = [
@@ -93,7 +94,7 @@ class AlbumController(BaseController):
     else:
       return self.render_template("album/overview.html", template_vars)
 
-  @cherrypy.expose
+  #@cherrypy.expose
   def post_photo(self, args, file):
     template_vars = {}
     template_vars["bodyclass"] = "class=main"

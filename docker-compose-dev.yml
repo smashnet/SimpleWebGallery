@@ -65,6 +65,10 @@ services:
     restart: always
     environment:
       - PYTHONUNBUFFERED=0
+      - ALBUM_SERVICE=localhost:10000
+      - PHOTO_SERVICE=localhost:10001
+      - SUBSCRIPTION_SERVICE=localhost:10002
+      - THUMBNAIL_SERVICE=localhost:10003
     volumes:
       - ./components/ui-service/:/usr/src/app/
     ports:

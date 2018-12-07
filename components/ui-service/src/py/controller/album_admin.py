@@ -12,7 +12,6 @@ License: MIT License
 
 import cherrypy
 
-import config
 from controller.base import BaseController
 
 class AdminController(BaseController):
@@ -25,21 +24,29 @@ class AdminController(BaseController):
     "href": "/admin"
     }
     # Set navbar links
-    template_vars["navlinks"] = []
-    # Set admin area links# Set navbar links
-    template_vars["adminlinks"] = []
-
-    # Set album create url
-    template_vars["album_create_url"] = "http://%s/album-service/albums" % config.ALBUM_SERVICE_URL
-
-    # Album fake:
-    template_vars["albums"] = [
+    template_vars["navlinks"] = [
     {
-      "uuid": "123",
-      "name": "hello world",
-      "accesscode": "12345678",
-      "creator": "172.20.0.1",
-      "dateCreated": "07.12.2018 - 14:52Uhr"
+      "name": "Home",
+      "href": "/"
+    },
+    {
+      "name": "Fotos",
+      "href": "/admin/photos"
+    },
+    {
+      "name": "Subscriptions",
+      "href": "/admin/subscriptions"
+    }
+    ]
+    # Set admin area links# Set navbar links
+    template_vars["adminlinks"] = [
+    {
+      "name": "Fotos",
+      "href": "/admin/photos"
+    },
+    {
+      "name": "Subscriptions",
+      "href": "/admin/subscriptions"
     }
     ]
     return self.render_template("admin/index.html", template_vars)

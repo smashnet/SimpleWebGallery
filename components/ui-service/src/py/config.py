@@ -22,3 +22,9 @@ PHOTO_DIR = DATA_DIR + "img/"
 PHOTO_THUMBS_DIR = DATA_DIR + "thumbs/"
 VIEWS_PATH = os.path.abspath(os.getcwd()) + "/src/views"
 ACCESS_CODE_CHARS = "0123456789abcdefghijklmnopqrstuvwxzy"
+
+# Read from env on init
+ALBUM_SERVICE_URL = None
+PHOTO_SERVICE_URL = None
+SUBSCRIPTION_SERVICE_URL = None
+THUMBNAIL_SERVICE_URL = None

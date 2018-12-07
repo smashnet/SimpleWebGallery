@@ -6,21 +6,57 @@
   <section class="jumbotron text-center">
     <div class="container">
       <h1 class="jumbotron-heading">Administration panel</h1>
-      <p class="lead text-muted">Choose what to administrate:</p>
-      <p>
-        {% for adminlink in adminlinks %}
-        <a class="btn btn-secondary my-2" href="{{ adminlink.href }}">{{ adminlink.name }}</a>
-        {% endfor %}
-      </p>
+      <p class="lead text-muted">In this area you can manage your existing albums. <br />Create new ones, delete the ones you never wanted to exist, and much more ;)</p>
+      <hr/>
+      <form action="{{ album_create_url }}" method="post" id="albumCreateForm" target="hiddenFrame" class="hasSubmitButton">
+        <div class="form-group">
+          <input type="text" class="form-control" id="inputAlbumName" name="albumname" aria-describedby="albumCreateHelp" placeholder="Album name">
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitButton">Create new album</button><br />
+      </form>
     </div>
   </section>
 
   <div class="album py-5 bg-light">
     <div class="container">
-
-
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">UUID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Access code</th>
+            <th scope="col">Creator</th>
+            <th scope="col">Date created</th>
+            <th scope="col">Aktion</th>
+          </tr>
+        </thead>
+        {% if albums is defined %}
+        <tbody>
+          {% for album in albums %}
+          <tr>
+            <td>{{ album.uuid }}</td>
+            <td>{{ album.name }}</td>
+            <td>{{ album.accesscode }}</td>
+            <td>{{ album.creator }}</td>
+            <td>{{ album.dateCreated }}</td>
+            <td>
+              <a type="button" class="btn btn-sm btn-outline-primary" href="#" onclick="">Edit</a>
+              <a type="button" class="btn btn-sm btn-outline-secondary" href="#" onclick="">View</a>
+              <a type="button" class="btn btn-sm btn-outline-danger" href="#" onclick="deleteData('{{ album.url_delete }}')">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      </table>
+      <div class="text-muted text-center">
+        No albums here yet :(
+      </div>
+      {% endif %}
     </div>
   </div>
 
 </main>
+<iframe name="hiddenFrame" class="hide"></iframe>
 {% endblock %}

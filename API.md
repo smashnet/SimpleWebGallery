@@ -39,6 +39,8 @@ GET /api/album-service/album/{uuid}
     -> dateCreated
     -> {"photos": [uuids]}
     -> {"subscriptions": [uuids]}
+PUT /api/album-service/album/{uuid}
+  -> Add information to album with given UUID
 DELETE /api/album-service/album/{uuid}
   -> Delete album with given UUID
 ```

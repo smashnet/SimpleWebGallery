@@ -92,6 +92,7 @@ class PhotoServicePhotos(object):
     ## Receive file
     info, data = self.receive_new_photo(file)
 
+    print(file)
     print(info)
 
     ## Write to storage
