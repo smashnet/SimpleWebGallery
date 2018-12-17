@@ -28,22 +28,9 @@ def init_service():
   ## Create directories if not existing yet
   if not os.path.exists(config.DATA_DIR):
     os.makedirs(config.DATA_DIR)
-    
+
   ## Init redis communication
   common.myRedis = redis.Redis(host='redis', port=6379, db=0)
-  common.pubSub = common.myRedis.pubsub(ignore_subscribe_messages=True)
-
-  ## Subscribe to channels
-  common.pubSub.subscribe(**{'general': message_handlers.handle_general_messages})
-  common.pubSub.subscribe(**{'photos': message_handlers.handle_photo_messages})
-  common.pubSub.subscribe(**{'albums': message_handlers.handle_album_messages})
-  common.pubSub.subscribe(**{'subscribers': message_handlers.handle_subscriber_messages})
-
-  ## Listen for events in separate thread
-  common.pubSubThread = common.pubSub.run_in_thread(sleep_time=0.001)
-
-  ## Say hi
-  common.myRedis.publish('general', '%s: Here we are!' % config.NAME)
 
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
@@ -66,8 +53,6 @@ def init_service():
       sys.exit(100)
 
 def cleanup():
-  ## Stop redis PubSub Thread:
-  common.pubSubThread.stop()
   return
 
 if __name__ == '__main__':

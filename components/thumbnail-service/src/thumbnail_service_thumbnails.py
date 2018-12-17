@@ -24,13 +24,6 @@ import common
 @cherrypy.expose
 class ThumbnailServiceThumbnails(object):
 
-  @staticmethod
-  def getThumbURLs():
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid FROM files")
-      intermediate = r.fetchall()
-      return ["/thumbnail/%s" % item[0] for item in intermediate]
-
   @cherrypy.tools.accept(media='application/json')
   def GET(self, uuid=None, size=config.THUMB_SIZES[0]):
     # Check if uuid is None

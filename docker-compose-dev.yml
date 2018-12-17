@@ -21,6 +21,8 @@ services:
       - ./components/album-service/:/usr/src/app/
     ports:
       - 10000:8080
+    depends_on:
+      - redis
 
   photo-service:
     build:
@@ -33,6 +35,8 @@ services:
       - ./components/photo-service/:/usr/src/app/
     ports:
       - 10001:8080
+    depends_on:
+      - redis
 
   subscription-service:
     build:
@@ -45,6 +49,8 @@ services:
       - ./components/subscription-service/:/usr/src/app/
     ports:
       - 10002:8080
+    depends_on:
+      - redis
 
   thumbnail-service:
     build:
@@ -57,6 +63,8 @@ services:
       - ./components/thumbnail-service/:/usr/src/app/
     ports:
       - 10003:8080
+    depends_on:
+      - redis
 
   ui-service:
     build:

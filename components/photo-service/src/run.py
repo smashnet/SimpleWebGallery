@@ -43,21 +43,11 @@ def init_service():
 
   ## Init redis communication
   common.myRedis = redis.Redis(host='redis', port=6379, db=0)
-  common.pubSub = common.myRedis.pubsub(ignore_subscribe_messages=True)
-
-  ## Subscribe to channels
-  common.pubSub.subscribe(**{'general': message_handlers.handle_general_messages})
-
-  ## Listen for pubsub events in separate thread
-  common.pubSubThread = common.pubSub.run_in_thread(sleep_time=0.001)
-
-  ## Say hi
-  common.myRedis.publish('general', '%s: Here we are!' % config.NAME)
 
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
-    con.execute("CREATE TABLE IF NOT EXISTS files (uuid, filename, extension, content_type, md5, uploader, dateUploaded)")
+    con.execute("CREATE TABLE IF NOT EXISTS files (fileid, filename, extension, content_type, md5, uploader, uploaded)")
 
   ## Check DB version
   with sqlite3.connect(config.DB_STRING) as con:
@@ -75,8 +65,6 @@ def init_service():
       sys.exit(100)
 
 def cleanup():
-  ## Stop redis PubSub Thread:
-  common.pubSubThread.stop()
   return
 
 if __name__ == '__main__':

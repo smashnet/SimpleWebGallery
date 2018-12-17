@@ -14,6 +14,7 @@ import os, os.path
 from datetime import datetime
 import uuid
 import json
+import logging
 
 import cherrypy
 import sqlite3
@@ -42,7 +43,7 @@ class PhotoServicePhotos(object):
 
     img_uuid = str(uuid.uuid4())
     fn, filext = os.path.splitext(file.filename)
-    res = {"id": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "dateUploaded": str(datetime.utcnow())}
+    res = {"fileid": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "uploaded": str(datetime.utcnow())}
     return res, whole_data
 
   def rotate_if_necessary(self, info):
@@ -92,11 +93,8 @@ class PhotoServicePhotos(object):
     ## Receive file
     info, data = self.receive_new_photo(file)
 
-    print(file)
-    print(info)
-
     ## Write to storage
-    with open(config.PHOTO_DIR + "/%s%s" % (info["id"],info["extension"]), "wb") as written_file:
+    with open(config.PHOTO_DIR + "/%s%s" % (info["fileid"],info["extension"]), "wb") as written_file:
       written_file.write(data)
 
     ## Rotate image if necessary
@@ -105,15 +103,15 @@ class PhotoServicePhotos(object):
     ## Save photo in DB
     with sqlite3.connect(config.DB_STRING) as c:
       c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [info['id'], info['filename'], info['extension'], info['content_type'], info['md5'], info['uploader'], info['dateUploaded']])
+        [info['fileid'], info['filename'], info['extension'], info['content_type'], info['md5'], info['uploader'], info['uploaded']])
 
     ## Create task to create thumbnails
-    common.myRedis.set(info['id'], bytes(data)) # Save data to redis, key: uuid
-    taskitem = {"uuid": info['id']}
+    common.myRedis.set(info['fileid'], bytes(data)) # Save data to redis, key: uuid
+    taskitem = {"fileid": info['fileid'], "extension": info['extension']}
     common.myRedis.lpush("create-thumbnail", json.dumps(taskitem)) # Add task to list
 
-    ##TODO: Create task to add photo to album
-    taskitem = {"uuid": info['id'], "album": "0"}
+    ## Create task to add photo to album
+    taskitem = {"fileid": info['fileid'], "albumid": "0"}
     common.myRedis.lpush("add-to-album", json.dumps(taskitem)) # Add task to list
 
     return info

@@ -18,5 +18,5 @@ DATA_DIR = os.path.abspath(os.getcwd()) + "/%s-data/" % NAME
 DB_STRING = DATA_DIR + "database.db"
 
 # Further service dependent configuration:
-THUMB_SIZES = ["256px", "512px", "1024px"]
+THUMB_SIZES = [256, 512, 1024]
 THUMB_DIR = DATA_DIR + "thumbs/"

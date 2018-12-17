@@ -18,10 +18,10 @@ import sqlite3
 
 import common
 import config
-import message_handlers
 
 from thumbnail_service_root import ThumbnailServiceRoot
 from thumbnail_service_thumbnails import ThumbnailServiceThumbnails
+from create_thumbnail_task_processor import CreateThumbnailTaskProcessor
 
 def init_service():
   ## Init local data storage
@@ -31,24 +31,16 @@ def init_service():
 
   ## Init redis communication
   common.myRedis = redis.Redis(host='redis', port=6379, db=0)
-  common.pubSub = common.myRedis.pubsub(ignore_subscribe_messages=True)
 
-  ## Subscribe to channels
-  common.pubSub.subscribe(**{'general': message_handlers.handle_general_messages})
-  common.pubSub.subscribe(**{'photos': message_handlers.handle_photo_messages})
-  common.pubSub.subscribe(**{'albums': message_handlers.handle_album_messages})
-  common.pubSub.subscribe(**{'subscribers': message_handlers.handle_subscriber_messages})
-
-  ## Listen for events in separate thread
-  common.pubSubThread = common.pubSub.run_in_thread(sleep_time=0.001)
-
-  ## Say hi
-  common.myRedis.publish('general', '%s: Here we are!' % config.NAME)
+  ## Listen on redis channel _create-thumbnail_ for new tasks
+  common.taskThread = CreateThumbnailTaskProcessor()
+  common.taskThread.daemon = True
+  common.taskThread.start()
 
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
-    con.execute("CREATE TABLE IF NOT EXISTS thumbnails (uuid, extension, created, dateCreated)")
+    con.execute("CREATE TABLE IF NOT EXISTS thumbnails (thumbid, extension, created)")
 
   ## Check DB version
   with sqlite3.connect(config.DB_STRING) as con:
@@ -66,8 +58,7 @@ def init_service():
       sys.exit(100)
 
 def cleanup():
-  ## Stop redis PubSub Thread:
-  common.pubSubThread.stop()
+  common.taskThread.join(timeout=1.0)
   return
 
 if __name__ == '__main__':
