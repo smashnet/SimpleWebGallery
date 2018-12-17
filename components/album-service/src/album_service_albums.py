@@ -26,51 +26,41 @@ import common
 @cherrypy.expose
 class AlbumServiceAlbums(object):
 
-  @staticmethod
-  def albumExists(accessCode):
-    return True
+  def getAlbumInformation(self, uuid):
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT * FROM albums WHERE accessCode=? LIMIT 1", (accessCode,))
-      if len(r.fetchall()) == 0:
-        return False
-      else:
-        return True
-
-  @staticmethod
-  def getAlbumInformation(accessCode):
-    return {}
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, name, accesscode, creator, dateCreated FROM albums WHERE accesscode=?", (accessCode,))
+      r = c.execute("SELECT albumid, name, accesscode, creator, created FROM albums WHERE albumid=?", (uuid,))
       res = common.DBtoDict(r)
       return res
 
-  @staticmethod
-  def getListOfAllAlbums():
+  def getListOfAllAlbums(self):
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, name, accesscode, creator, dateCreated FROM albums")
-      res = common.DBtoDict(r)
+      r = c.execute("SELECT albumid, name, accesscode, creator, created FROM albums")
+      res = common.DBtoList(r)
       if len(res) == 0:
         return None
       return res
 
   def saveNewAlbum(self, info):
     with sqlite3.connect(config.DB_STRING) as c:
-      # TODO: 
-      c.execute("INSERT INTO albums VALUES (?, ?, ?, ?)",
-        [res['id'], res['mail'], res['ip'], res['dateSubscribed']])
+      # TODO:
+      c.execute("INSERT INTO albums VALUES (?, ?, ?, ?, ?)",
+        [info['albumid'], info['name'], info['accesscode'], info['creator'], info['created']])
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
-  def GET(self, uuid=None):
+  def GET(self, albumid=None):
+    if albumid == None:
+      return self.getListOfAllAlbums()
+
     # Check if is valid uuid
     try:
-      uuid.UUID(uuid, version=4)
+      uuid.UUID(albumid, version=4)
     except ValueError:
       return "Not a valid uuid"
 
-    # TODO
-    return {}
+    return self.getAlbumInformation(albumid)
 
+  @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
   def POST(self, albumname=None):
     # TODO: Create new album with random accesscode and return information as JSON
@@ -80,7 +70,7 @@ class AlbumServiceAlbums(object):
     # TODO: Validate album name
 
     res = {
-      "uuid": str(uuid.uuid4()),
+      "albumid": str(uuid.uuid4()),
       "name": albumname,
       "accesscode": ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)),
       "creator": cherrypy.request.remote.ip,
@@ -92,6 +82,7 @@ class AlbumServiceAlbums(object):
 
     return res
 
+  @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
   def PUT(self, file):
     # TODO
@@ -100,14 +91,26 @@ class AlbumServiceAlbums(object):
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
   def DELETE(self, uuid=None):
+    if uuid == None:
+      return "No uuid given"
+
     # Check if is valid uuid
     try:
       uuid.UUID(uuid, version=4)
     except ValueError:
       return "Not a valid uuid"
 
-    # TODO
-    return {}
+    # TODO 1: Delete from album_subscribers
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM album_subscribers WHERE albumid=?", (str(uuid),))
+    # TODO 2: Delete from album_photos
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM album_photos WHERE albumid=?", (str(uuid),))
+    # TODO 3: Delete from albums
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM albums WHERE albumid=?", (str(uuid),))
+
+    return {"message": "Album deleted", "error": "OK"}
 
   def OPTIONS(self):
     return None

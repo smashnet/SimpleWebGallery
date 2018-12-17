@@ -28,34 +28,36 @@ The SimpleWebGallery services API. In order to be scalable, lots of things in th
 ```
 GET /api/album-service/albums
   -> Get JSON list of all albums (all information except photoUUIDs)
-POST /api/album-service/album
+POST /api/album-service/albums
   -> Create new album, and return album uuid
-GET /api/album-service/album/{uuid}
+GET /api/album-service/albums/{uuid}
   -> Get information of album with given UUID. Information contains
-    -> uuid
+    -> albumid
     -> name
     -> accesscode
     -> creator
-    -> dateCreated
+    -> created
     -> {"photos": [uuids]}
     -> {"subscriptions": [uuids]}
-PUT /api/album-service/album/{uuid}
+PUT /api/album-service/albums/{uuid}
   -> Add information to album with given UUID
-DELETE /api/album-service/album/{uuid}
+DELETE /api/album-service/albums/{uuid}
   -> Delete album with given UUID
+
+  GET /api/album-service/accessCode
+    -> Get albumid and name of album with given accesscode
 ```
 
 ### PhotoService
 ```
 GET /api/photo-service/photo/{uuid}(/json)
   -> Retrieve JSON information for photo with given UUID. Information contains:
-    -> uuid
+    -> fileid
     -> filename
     -> content_type
     -> md5
-    -> albumUUID
     -> uploader
-    -> dateUploaded
+    -> uploaded
 GET /api/photo-service/photo/{uuid}/raw
   -> Retrieve raw data photo of given UUID, and original file name
 DELETE /api/photo-service/photo/{uuid}
@@ -78,15 +80,15 @@ GET /api/thumbnail-service/thumbnail/{uuid}(/???px)
 ```
 GET /api/subscription-service/subscription/{uuid}
   -> Retrieve JSON information for subscription with given UUID. Information contains:
-    -> uuid
+    -> subscriptionid
     -> email
     -> ip
-    -> itemUUID
-    -> dateSubscribed
+    -> itemid
+    -> subscribed
 DELETE /api/subscription-service/subscription/{uuid}
   -> Delete given subscription completely.
 POST /api/subscription-service/subscription
   -> Create new subscription. Requires information:
     -> email
-    -> itemUUID
+    -> itemid
 ```

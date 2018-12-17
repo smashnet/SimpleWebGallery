@@ -18,6 +18,14 @@ pubSubThread = None
 
 def DBtoDict(res):
   descs = [desc[0] for desc in res.description]
+  item = res.fetchone()
+  if item == None:
+    return {}
+  else:
+    return dict(zip(descs, item))
+
+def DBtoList(res):
+  descs = [desc[0] for desc in res.description]
   intermediate = res.fetchall()
   return [dict(zip(descs, item)) for item in intermediate]
 

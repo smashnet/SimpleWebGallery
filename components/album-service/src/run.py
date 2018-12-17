@@ -22,6 +22,7 @@ import message_handlers
 
 from album_service_root import AlbumServiceRoot
 from album_service_albums import AlbumServiceAlbums
+from album_service_accesscode import AlbumServiceAccessCode
 
 def init_service():
   ## Init local data storage
@@ -45,7 +46,7 @@ def init_service():
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
-    con.execute("CREATE TABLE IF NOT EXISTS albums (uuid, name, accesscode, creator, created, photos, subscriptions)")
+    con.execute("CREATE TABLE IF NOT EXISTS albums (albumid, name, accesscode, creator, created)")
     con.execute("CREATE TABLE IF NOT EXISTS album_photos (albumid, photoid)")
     con.execute("CREATE TABLE IF NOT EXISTS album_subscribers (albumid, subscriberid)")
 
@@ -79,6 +80,11 @@ if __name__ == '__main__':
           'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
           'tools.response_headers.on': True,
           'tools.response_headers.headers': [('Content-Type', 'application/json')]
+      },
+      '/accesscode': {
+          'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+          'tools.response_headers.on': True,
+          'tools.response_headers.headers': [('Content-Type', 'application/json')]
       }
   }
 
@@ -90,5 +96,6 @@ if __name__ == '__main__':
 
   service = AlbumServiceRoot()
   service.albums = AlbumServiceAlbums()
+  service.accesscode = AlbumServiceAccessCode()
 
   cherrypy.quickstart(service, '/album-service', conf)
