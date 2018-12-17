@@ -51,6 +51,10 @@ class CreateThumbnailTaskProcessor(threading.Thread):
         c.execute("INSERT INTO thumbs VALUES (?, ?, ?)",
           [metadata['fileid'], metadata['extension'], str(datetime.utcnow())])
 
+      ## Deleting key with file data from redis
+      logging.info("Removing file data from redis")
+      res = self.myRedis.delete(metadata['fileid'])
+
       ## If successful, remove task from processing list
       logging.info("Removing task from processing list")
       res = self.myRedis.lrem('create-thumbnail-processing', 0 , task)
