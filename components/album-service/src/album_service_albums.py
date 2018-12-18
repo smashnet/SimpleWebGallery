@@ -30,7 +30,22 @@ class AlbumServiceAlbums(object):
     with sqlite3.connect(config.DB_STRING) as c:
       r = c.execute("SELECT albumid, name, accesscode, creator, created FROM albums WHERE albumid=?", (uuid,))
       res = common.DBtoDict(r)
-      return res
+      if res == {}:
+        # Album does not exist
+        return {}
+
+      album = res
+
+      # If the album exists, get files and subscription information
+      r = c.execute("SELECT fileid FROM album_files WHERE albumid=?", (uuid,))
+      fileids = common.DBtoList(r)
+      album['files'] = fileids
+
+      r = c.execute("SELECT subscriptionid FROM album_subscriptions WHERE albumid=?", (uuid,))
+      subscriptionids = common.DBtoList(r)
+      album['subscriptions'] = subscriptionids
+
+      return album
 
   def getListOfAllAlbums(self):
     with sqlite3.connect(config.DB_STRING) as c:

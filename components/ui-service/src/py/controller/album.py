@@ -93,6 +93,8 @@ class AlbumController(BaseController):
     }
     ]
 
+    template_vars['album_index_url'] = "/album/%s" % args[0]
+
     # TODO: Get list of photos
     photos = None
     if photos is not None:
