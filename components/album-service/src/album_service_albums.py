@@ -38,7 +38,8 @@ class AlbumServiceAlbums(object):
 
       # If the album exists, get files and subscription information
       r = c.execute("SELECT fileid FROM album_files WHERE albumid=?", (uuid,))
-      fileids = common.DBtoList(r)
+      res = common.DBtoList(r)
+      fileids = [item['fileid'] for item in res]
       album['files'] = fileids
 
       r = c.execute("SELECT subscriptionid FROM album_subscriptions WHERE albumid=?", (uuid,))

@@ -25,23 +25,22 @@ import common
 class ThumbnailServiceThumbnails(object):
 
   @cherrypy.tools.accept(media='application/json')
-  def GET(self, uuid=None, size=config.THUMB_SIZES[0]):
+  def GET(self, thumbid=None, size=config.THUMB_SIZES[1]):
     # Check if uuid is None
-    if uuid == None:
-      return "No uuid given"
-    # Check if is valid uuid
+    if thumbid == None:
+      return "No thumbid given"
+    # Check if is valid thumbid
     try:
-      uuid.UUID(uuid, version=4)
+      uuid.UUID(thumbid, version=4)
     except ValueError:
-      return "Not a valid uuid"
+      return "Not a valid thumbid"
 
     # Check if is valid size
-    if size in config.THUMB_SIZES:
+    if int(size) in config.THUMB_SIZES:
       # Get file information from DB
       with sqlite3.connect(config.DB_STRING) as c:
-        r = c.execute("SELECT * FROM files WHERE uuid=?", (str(uuid),))
-        res = r.fetchone()
-        fn, filext = os.path.splitext(res[1])
-        with open(config.PHOTO_THUMBS_DIR + "/%s_%s%s" % (uuid, size, filext), "rb") as the_file:
+        r = c.execute("SELECT * FROM thumbnails WHERE thumbid=?", (str(thumbid),))
+        res = common.DBtoDict(r)
+        with open(config.THUMB_DIR + "/%s_%s%s" % (res['thumbid'], size, res['extension']), "rb") as the_file:
           cherrypy.response.headers['Content-Type'] = 'image/jpeg'
           return the_file.read()

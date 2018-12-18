@@ -22,6 +22,7 @@ import message_handlers
 
 from photo_service_root import PhotoServiceRoot
 from photo_service_photos import PhotoServicePhotos
+from photo_service_rawcontent import PhotoServiceRawContent
 
 def CORS():
   if cherrypy.request.method == 'OPTIONS':
@@ -76,6 +77,10 @@ if __name__ == '__main__':
       '/photos': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
           'tools.CORS.on': True
+      },
+      '/rawcontent': {
+          'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+          'tools.CORS.on': True
       }
   }
 
@@ -87,6 +92,7 @@ if __name__ == '__main__':
 
   service = PhotoServiceRoot()
   service.photos = PhotoServicePhotos()
+  service.rawcontent = PhotoServiceRawContent()
 
   cherrypy.tools.CORS = cherrypy.Tool('before_finalize', CORS)
   cherrypy.quickstart(service, '/photo-service', conf)

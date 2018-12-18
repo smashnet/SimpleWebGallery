@@ -70,6 +70,7 @@ class PhotoServicePhotos(object):
     image.close()
 
   @cherrypy.tools.accept(media='application/json')
+  @cherrypy.tools.json_out()
   def GET(self, photouuid=None):
     # Check if uuid given
     if photouuid == None:
@@ -82,12 +83,9 @@ class PhotoServicePhotos(object):
 
     # Get file information from DB
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT * FROM files WHERE uuid=?", (str(photouuid),))
-      res = r.fetchone()
-      fn, filext = os.path.splitext(res[1])
-      with open(config.PHOTO_DIR + "/%s%s" % (photouuid, filext), "rb") as the_file:
-        cherrypy.response.headers['Content-Type'] = res[3]
-        return the_file.read()
+      r = c.execute("SELECT * FROM files WHERE fileid=?", (str(photouuid),))
+      res = common.DBtoDict(r)
+      return res
 
   @cherrypy.tools.json_out()
   def POST(self, file, albumid):

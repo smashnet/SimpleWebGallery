@@ -41,7 +41,7 @@
             <td>{{ album.created }}</td>
             <td>
               <a type="button" class="btn btn-sm btn-outline-primary" href="#" onclick="">Edit</a>
-              <a type="button" class="btn btn-sm btn-outline-secondary" href="#" onclick="">View</a>
+              <a type="button" class="btn btn-sm btn-outline-secondary" href="{{ album.albumurl }}" onclick="">View</a>
               <a type="button" class="btn btn-sm btn-outline-danger" href="#" onclick="deleteData('{{ album.url_delete }}')">Delete</a>
             </td>
           </tr>

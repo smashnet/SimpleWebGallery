@@ -12,11 +12,12 @@
         <div class="d-flex justify-content-center">
           <div class="mx-4">
             <div class="card mb-5 shadow-sm">
-              <img class="img-thumbnail" src="static/img/frontpage_1300px.jpg" alt="Thumbnail">
+              <!--<img class="img-thumbnail" src="static/img/frontpage_1300px.jpg" alt="Thumbnail">-->
               <div class="card-body">
+                <p class="lead">Gebe hier den Access-Code ein, den du bekommen hast:<p/>
                 <form class="form-group text-center" id="enterAlbumForm" action="/album/" onsubmit="createActionURL()">
                   <div class="form-group mb-2">
-                    <input type="text" class="form-control form-control-sm" id="accessCodeInput" placeholder="Album-Code">
+                    <input type="text" class="form-control form-control-sm" id="accessCodeInput" placeholder="Access-Code">
                   </div>
                   <button class="btn btn-primary btn-sm">
                     <span class="fas fa-sign-in-alt"></span> zum Album
@@ -26,10 +27,6 @@
             </div>
           </div>
         </div>
-          <hr class="my-4">
-          <p class="lead text-center">Du möchtest sicher direkt zum einem bestimmten Album, um dort deine Bilder hochzuladen. Gib dazu oben den Album-Code ein, den du bekommen hast.<br/>
-            <a href=""><span class="fas fa-arrow-up"></span></a>
-          </p>
       </div>
 
 {% endblock %}

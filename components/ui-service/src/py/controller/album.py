@@ -42,7 +42,7 @@ class AlbumController(BaseController):
     template_vars['album_id'] = albuminfo['albumid']
     template_vars['album_name'] = albuminfo['name']
     template_vars['album_accesscode'] = albuminfo['accesscode']
-    template_vars['album_created'] = albuminfo['created']
+    template_vars['album_created'] = albuminfo['created'].split('.')[0]
     template_vars['album_amount_photos'] = len(albuminfo['files'])
     template_vars['album_amount_subscriptions'] = len(albuminfo['subscriptions'])
 
@@ -76,6 +76,34 @@ class AlbumController(BaseController):
     if len(args) == 0 or not common.isValidAccessCode(args[0]):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
+    # Resolve access code to id. Returns {} if no album with this code exists
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[0])
+    if r.json() == {}:
+      return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    albummeta = r.json()
+
+    # Get album information
+    r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
+    albuminfo = r.json()
+
+    # TODO: Get list of photos
+    # photo.thumburl
+    # photo.photourl
+    # photo.uploaded
+    photos = []
+    for fileid in albuminfo['files']:
+      r = requests.get("http://photo-service:8080/photo-service/photos/%s" % fileid)
+      fileinfo = r.json()
+      fileinfo['thumburl'] = "http://%s/thumbnail-service/thumbnails/%s" % (config.THUMBNAIL_SERVICE_URL, fileid)
+      fileinfo['fileurl'] = "http://%s/photo-service/rawcontent/%s" % (config.PHOTO_SERVICE_URL, fileid)
+      photos.append(fileinfo)
+    if photos is not []:
+      template_vars["photos"] = photos
+      # Prune dateUploaded
+      for item in template_vars["photos"]:
+        item["uploaded"] = item["uploaded"].split('.')[0]
+
     # check if fullscreen
     if len(args) > 2 and args[2] == "fullscreen":
       template_vars["fullscreen"] = True
@@ -86,7 +114,7 @@ class AlbumController(BaseController):
     template_vars["navlinks"] = [
     {
       "name": "Home",
-      "href": "/"
+      "href": "/album/%s" % args[0]
     },
     {
       "name": "Fotos",
@@ -95,15 +123,6 @@ class AlbumController(BaseController):
     ]
 
     template_vars['album_index_url'] = "/album/%s" % args[0]
-
-    # TODO: Get list of photos
-    photos = None
-    if photos is not None:
-      template_vars["photos"] = photos
-      template_vars["startIndex"] = startIndex
-      # Prune dateUploaded
-      for item in template_vars["photos"]:
-        item["dateUploaded"] = item["dateUploaded"].split('.')[0]
 
     if template_vars["fullscreen"]:
       return self.render_template("album/fullscreen.html", template_vars)
