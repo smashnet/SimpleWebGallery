@@ -34,11 +34,11 @@
         <tbody>
           {% for album in albums %}
           <tr>
-            <td>{{ album.uuid }}</td>
+            <td>{{ album.albumid }}</td>
             <td>{{ album.name }}</td>
             <td>{{ album.accesscode }}</td>
             <td>{{ album.creator }}</td>
-            <td>{{ album.dateCreated }}</td>
+            <td>{{ album.created }}</td>
             <td>
               <a type="button" class="btn btn-sm btn-outline-primary" href="#" onclick="">Edit</a>
               <a type="button" class="btn btn-sm btn-outline-secondary" href="#" onclick="">View</a>

@@ -11,6 +11,8 @@ License: MIT License
 '''
 
 import config
+import requests
+import json
 
 def DBtoDict(res):
   descs = [desc[0] for desc in res.description]
@@ -24,3 +26,11 @@ def isValidAccessCode(accessCode):
     if char not in config.ACCESS_CODE_CHARS:
       return False
   return True
+
+def albumExists(accessCode):
+  res = requests.get("http://album-service:8080/album-service/accesscode/%s" % accessCode)
+  print(res.json())
+  if res.json() == {}:
+    return False
+  else:
+    return True

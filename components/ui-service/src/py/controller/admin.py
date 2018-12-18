@@ -11,6 +11,7 @@ License: MIT License
 '''
 
 import cherrypy
+import requests
 
 import config
 from controller.base import BaseController
@@ -32,14 +33,8 @@ class AdminController(BaseController):
     # Set album create url
     template_vars["album_create_url"] = "http://%s/album-service/albums" % config.ALBUM_SERVICE_URL
 
-    # Album fake:
-    template_vars["albums"] = [
-    {
-      "uuid": "123",
-      "name": "hello world",
-      "accesscode": "12345678",
-      "creator": "172.20.0.1",
-      "dateCreated": "07.12.2018 - 14:52Uhr"
-    }
-    ]
+    # Get albums
+    r = requests.get("http://album-service:8080/album-service/albums")
+    print(r.json())
+    template_vars["albums"] = r.json()
     return self.render_template("admin/index.html", template_vars)

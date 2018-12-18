@@ -40,9 +40,6 @@ class SimpleWebGallery(object):
     # Route to get the overview of a certain album, e.g. /album/12345678/overview
     if len(args) >= 2 and args[1] == "overview":
       return c.overview(args)
-    # Route to post a new photo to a certain album, e.g. /album/12345678/photo
-    if len(args) >= 2 and args[1] == "photo":
-      return c.post_photo(args, kwargs["file"])
     return c.index(args)
 
   @cherrypy.expose

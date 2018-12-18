@@ -12,7 +12,6 @@ License: MIT License
 
 import cherrypy
 import requests
-from datetime import datetime
 
 import common
 import config
@@ -26,9 +25,25 @@ class AlbumController(BaseController):
     template_vars["bodyclass"] = "class=main"
     # Check args
     # args[0] should be the 8-digit-access-code
-    # TODO: Check with AlbumService if album with this code exists
+    # Check if is valid access code
     if len(args) == 0 or not common.isValidAccessCode(args[0]):
       return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    # Resolve access code to id. Returns {} if no album with this code exists
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[0])
+    if r.json() == {}:
+      return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    albummeta = r.json()
+
+    # Get album information
+    r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
+    albuminfo = r.json()
+    template_vars['album_name'] = albuminfo['name']
+    template_vars['album_accesscode'] = albuminfo['accesscode']
+    template_vars['album_created'] = albuminfo['created']
+    template_vars['album_amount_photos'] = 42
+    template_vars['album_amount_subscriptions'] = 43
 
     # create photo upload url
     template_vars["photo_upload_url"] = "http://%s/photo-service/photos" % config.PHOTO_SERVICE_URL
@@ -44,13 +59,6 @@ class AlbumController(BaseController):
       "href": "/album/%s/overview" % args[0]
     }
     ]
-
-    # TODO: Get album information
-    template_vars['album_name'] = "Test title"
-    template_vars['album_accesscode'] = "12345678"
-    template_vars['album_created'] = str(datetime.utcnow())
-    template_vars['album_amount_photos'] = 42
-    template_vars['album_amount_subscriptions'] = 84
 
     return self.render_template("album/index.html", template_vars)
 
