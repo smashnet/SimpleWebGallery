@@ -10,6 +10,7 @@ window.openFullscreen = openFullscreen
 window.closeFullscreen = closeFullscreen
 window.createActionURL = createActionURL
 window.Siema = Siema
+window.Dropzone = Dropzone
 
 document.querySelectorAll(".hasSubmitButton").forEach((form) => {
   form.addEventListener("submit", btnSuccessOnSubmit);
@@ -17,10 +18,5 @@ document.querySelectorAll(".hasSubmitButton").forEach((form) => {
 
 Dropzone.options.partyUpload = {
   acceptedFiles: 'image/*',
-  maxFilesize: 7,
-  init: function() {
-          this.on("sending", function(file, xhr, formData){
-            formData.append("albumid", "loremipsum");
-          });
-        }
+  maxFilesize: 7
 };

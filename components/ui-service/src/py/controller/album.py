@@ -39,6 +39,7 @@ class AlbumController(BaseController):
     # Get album information
     r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
     albuminfo = r.json()
+    template_vars['album_id'] = albuminfo['albumid']
     template_vars['album_name'] = albuminfo['name']
     template_vars['album_accesscode'] = albuminfo['accesscode']
     template_vars['album_created'] = albuminfo['created']

@@ -60,3 +60,12 @@
       </div>
 
 {% endblock %}
+{% block extrajs %}
+      <script type="text/javascript">
+        Dropzone.options.partyUpload.init = function() {
+                this.on("sending", function(file, xhr, formData){
+                        formData.append("albumid", "{{ album_id }}");
+                });
+        };
+      </script>
+{% endblock %}
