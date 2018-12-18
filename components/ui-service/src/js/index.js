@@ -17,5 +17,10 @@ document.querySelectorAll(".hasSubmitButton").forEach((form) => {
 
 Dropzone.options.partyUpload = {
   acceptedFiles: 'image/*',
-  maxFilesize: 7
+  maxFilesize: 7,
+  init: function() {
+          this.on("sending", function(file, xhr, formData){
+            formData.append("albumid", "loremipsum");
+          });
+        }
 };

@@ -13,7 +13,6 @@ import threading
 import redis
 import logging
 import json
-from datetime import datetime
 import sqlite3
 
 import config

@@ -1,7 +1,7 @@
 '''
 add_file_to_album_task_processor.py
 
-Processes tasks to add photos to albums
+Processes tasks to add files to albums
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
@@ -13,7 +13,6 @@ import threading
 import redis
 import logging
 import json
-from datetime import datetime
 import sqlite3
 
 import config

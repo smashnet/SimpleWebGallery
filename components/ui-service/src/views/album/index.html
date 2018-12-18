@@ -4,9 +4,13 @@
       <section class="jumbotron text-center">
         <div class="container">
           <h2 class="jumbotron-heading">{{ album_name }}</h2>
+          <p class="text-center">
+            Access code: {{ album_accesscode }}<br/>
+            Share album <span class="fas fa-share-square"></span>
+          </p>
           <p class="lead text-center">Ihr wollt eure frisch geschossenen Fotos direkt hier auf dem Bildschirm sehen?<br/> Dann ladet sie direkt hier hoch! Es ist auch ganz einfach ;)</p>
           <div id="dropzone">
-            <form action="{{ photo_upload_url }}" id="partyUpload" class="dropzone needsclick btn btn-primary btn-lg btn-block">
+            <form action="{{ photo_upload_url }}" id="partyUpload" class="dropzone needsclick">
               <div class="dz-message needsclick">
                 Fotos hochladen!
               </div>
@@ -28,6 +32,30 @@
             <button type="submit" class="btn btn-primary" id="submitButton">Abschicken</button><br />
           </form>
           <iframe name="hiddenFrame" class="hide"></iframe>
+        </div>
+      </div>
+      <div class="album py-5 bg-white">
+        <div class="container">
+          <table class="table">
+            <tbody class="thead-light">
+              <tr>
+                <td>Access code</td>
+                <td>{{ album_accesscode }}</td>
+              </tr>
+              <tr>
+                <td>Date created</td>
+                <td>{{ album_created }}</td>
+              </tr>
+              <tr>
+                <td>Number of files</td>
+                <td>{{ album_amount_photos }}</td>
+              </tr>
+              <tr>
+                <td>Number of subscriptions</td>
+                <td>{{ album_amount_subscriptions }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

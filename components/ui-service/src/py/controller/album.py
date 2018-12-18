@@ -12,6 +12,7 @@ License: MIT License
 
 import cherrypy
 import requests
+from datetime import datetime
 
 import common
 import config
@@ -30,7 +31,6 @@ class AlbumController(BaseController):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
     # create photo upload url
-    #template_vars["photo_upload_url"] = "%s/photo" % args[0]
     template_vars["photo_upload_url"] = "http://%s/photo-service/photos" % config.PHOTO_SERVICE_URL
 
     # Set nav items
@@ -46,6 +46,11 @@ class AlbumController(BaseController):
     ]
 
     # TODO: Get album information
+    template_vars['album_name'] = "Test title"
+    template_vars['album_accesscode'] = "12345678"
+    template_vars['album_created'] = str(datetime.utcnow())
+    template_vars['album_amount_photos'] = 42
+    template_vars['album_amount_subscriptions'] = 84
 
     return self.render_template("album/index.html", template_vars)
 
@@ -93,20 +98,3 @@ class AlbumController(BaseController):
       return self.render_template("album/fullscreen.html", template_vars)
     else:
       return self.render_template("album/overview.html", template_vars)
-
-  #@cherrypy.expose
-  def post_photo(self, args, file):
-    template_vars = {}
-    template_vars["bodyclass"] = "class=main"
-    # args[0] -> accessCode
-    # args[1] -> "photo"
-    # file -> file object of new photo
-
-    # args[0] should be the 8-digit-access-code
-    # TODO: Check with AlbumService if album with this code exists
-    if len(args) == 0 or not common.isValidAccessCode(args[0]):
-      return self.render_template("album/wrongAccessCode.html", template_vars)
-
-    # Forward photo to photo-service
-    files = {'file': (file.filename, file.file, file.content_type)}
-    r = requests.post("http://photo-service:8080/photo-service/photos", files = files )
