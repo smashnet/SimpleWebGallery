@@ -16,7 +16,7 @@ import json
 import hashlib
 from PIL import Image, ExifTags
 import io
-import datetime
+from datetime import datetime
 import sqlite3
 
 import config
@@ -48,7 +48,7 @@ class CreateThumbnailTaskProcessor(threading.Thread):
 
       ## Store thumb information to DB
       with sqlite3.connect(config.DB_STRING) as c:
-        c.execute("INSERT INTO thumbs VALUES (?, ?, ?)",
+        c.execute("INSERT INTO thumbnails VALUES (?, ?, ?)",
           [metadata['fileid'], metadata['extension'], str(datetime.utcnow())])
 
       ## Deleting key with file data from redis

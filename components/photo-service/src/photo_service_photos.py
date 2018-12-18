@@ -15,6 +15,7 @@ from datetime import datetime
 import uuid
 import json
 import logging
+import io
 
 import cherrypy
 import sqlite3
@@ -46,10 +47,10 @@ class PhotoServicePhotos(object):
     res = {"fileid": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "uploaded": str(datetime.utcnow())}
     return res, whole_data
 
-  def rotate_if_necessary(self, info):
+  def rotate_and_store(self, info, data):
     # Rotate image based on exif orientation
     try:
-      image=Image.open(config.PHOTO_DIR + "/%s%s" % (info['id'], info['extension']))
+      image=Image.open(io.BytesIO(data))
       for orientation in ExifTags.TAGS.keys():
         if ExifTags.TAGS[orientation]=='Orientation':
           break
@@ -61,12 +62,12 @@ class PhotoServicePhotos(object):
         image=image.rotate(270, expand=True)
       elif exif[orientation] == 8:
         image=image.rotate(90, expand=True)
-      image.save(config.PHOTO_DIR + "/%s%s" % (info['id'], info['extension']))
-      image.close()
 
     except (AttributeError, KeyError, IndexError):
       # cases: image don't have getexif
       pass
+    image.save(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']))
+    image.close()
 
   @cherrypy.tools.accept(media='application/json')
   def GET(self, photouuid=None):
@@ -93,12 +94,8 @@ class PhotoServicePhotos(object):
     ## Receive file
     info, data = self.receive_new_photo(file)
 
-    ## Write to storage
-    with open(config.PHOTO_DIR + "/%s%s" % (info["fileid"],info["extension"]), "wb") as written_file:
-      written_file.write(data)
-
-    ## Rotate image if necessary
-    self.rotate_if_necessary(info)
+    ## Rotate image if necessary, and write to storage
+    self.rotate_and_store(info, data)
 
     ## Save photo in DB
     with sqlite3.connect(config.DB_STRING) as c:

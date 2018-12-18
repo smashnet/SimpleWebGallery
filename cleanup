@@ -1,0 +1,7 @@
+#!/bin/bash
+
+rm -fr redis-data
+rm -fr components/album-service/album-service-data
+rm -fr components/photo-service/photo-service-data
+rm -fr components/subscription-service/subscription-service-data
+rm -fr components/thumbnail-service/thumbnail-service-data
