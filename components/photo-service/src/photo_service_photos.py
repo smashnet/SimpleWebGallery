@@ -91,6 +91,7 @@ class PhotoServicePhotos(object):
 
   @cherrypy.tools.json_out()
   def POST(self, file):
+    print(cherrypy.request.headers)
     ## Receive file
     info, data = self.receive_new_photo(file)
 
@@ -109,7 +110,7 @@ class PhotoServicePhotos(object):
 
     ## Create task to add photo to album
     taskitem = {"fileid": info['fileid'], "albumid": "0"}
-    common.myRedis.lpush("add-to-album", json.dumps(taskitem)) # Add task to list
+    common.myRedis.lpush("add-file-to-album", json.dumps(taskitem)) # Add task to list
 
     return info
 

@@ -13,8 +13,6 @@ License: MIT License
 import config
 
 myRedis = None
-pubSub = None
-pubSubThread = None
 
 def DBtoDict(res):
   descs = [desc[0] for desc in res.description]

@@ -23,6 +23,8 @@ import message_handlers
 from album_service_root import AlbumServiceRoot
 from album_service_albums import AlbumServiceAlbums
 from album_service_accesscode import AlbumServiceAccessCode
+from add_file_to_album_task_processor import AddFileToAlbumTaskProcessor
+from add_subscription_to_album_task_processor import AddSubscriptionToAlbumTaskProcessor
 
 def init_service():
   ## Init local data storage
@@ -33,12 +35,22 @@ def init_service():
   ## Init redis communication
   common.myRedis = redis.Redis(host='redis', port=6379, db=0)
 
+  ## Listen on redis channel _add-file-to-album_ for new tasks
+  common.addFileTaskThread = AddFileToAlbumTaskProcessor()
+  common.addFileTaskThread.daemon = True
+  common.addFileTaskThread.start()
+
+  ## Listen on redis channel _add-subscription-to-album_ for new tasks
+  common.addSubscriptionTaskThread = AddSubscriptionToAlbumTaskProcessor()
+  common.addSubscriptionTaskThread.daemon = True
+  common.addSubscriptionTaskThread.start()
+
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
     con.execute("CREATE TABLE IF NOT EXISTS albums (albumid, name, accesscode, creator, created)")
     con.execute("CREATE TABLE IF NOT EXISTS album_photos (albumid, photoid)")
-    con.execute("CREATE TABLE IF NOT EXISTS album_subscribers (albumid, subscriberid)")
+    con.execute("CREATE TABLE IF NOT EXISTS album_subscriptions (albumid, subscriptionid)")
 
   ## Check DB version
   with sqlite3.connect(config.DB_STRING) as con:
@@ -56,6 +68,8 @@ def init_service():
       sys.exit(100)
 
 def cleanup():
+  common.addFileTaskThread.join(timeout=1.0)
+  common.addSubscriptionTaskThread.join(timeout=1.0)
   return True
 
 if __name__ == '__main__':
