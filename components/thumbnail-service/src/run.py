@@ -23,6 +23,18 @@ from thumbnail_service_root import ThumbnailServiceRoot
 from thumbnail_service_thumbnails import ThumbnailServiceThumbnails
 from create_thumbnail_task_processor import CreateThumbnailTaskProcessor
 
+def CORS():
+  if cherrypy.request.method == 'OPTIONS':
+    # preflign request
+    # see http://www.w3.org/TR/cors/#cross-origin-request-with-preflight-0
+    cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST,GET,DELETE'
+    cherrypy.response.headers['Access-Control-Allow-Headers'] = 'cache-control,x-requested-with'
+    cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
+    # tell CherryPy no avoid normal handler
+    return True
+  else:
+    cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
+
 def init_service():
   ## Init local data storage
   ## Create directories if not existing yet
@@ -68,7 +80,8 @@ if __name__ == '__main__':
           'tools.staticdir.root': os.path.abspath(os.getcwd())
       },
       '/thumbnails': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher()
+          'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+          'tools.CORS.on': True
       }
   }
 
@@ -81,4 +94,5 @@ if __name__ == '__main__':
   service = ThumbnailServiceRoot()
   service.thumbnails = ThumbnailServiceThumbnails()
 
+  cherrypy.tools.CORS = cherrypy.Tool('before_finalize', CORS)
   cherrypy.quickstart(service, '/thumbnail-service', conf)

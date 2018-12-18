@@ -23,6 +23,18 @@ import message_handlers
 from subscription_service_root import SubscriptionServiceRoot
 from subscription_service_subscriptions import SubscriptionServiceSubscriptions
 
+def CORS():
+  if cherrypy.request.method == 'OPTIONS':
+    # preflign request
+    # see http://www.w3.org/TR/cors/#cross-origin-request-with-preflight-0
+    cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST,GET,DELETE'
+    cherrypy.response.headers['Access-Control-Allow-Headers'] = 'cache-control,x-requested-with'
+    cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
+    # tell CherryPy no avoid normal handler
+    return True
+  else:
+    cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
+
 def init_service():
   ## Init local data storage
   ## Create directories if not existing yet
@@ -64,7 +76,8 @@ if __name__ == '__main__':
       '/subscriptions': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
           'tools.response_headers.on': True,
-          'tools.response_headers.headers': [('Content-Type', 'application/json')]
+          'tools.response_headers.headers': [('Content-Type', 'application/json')],
+          'tools.CORS.on': True
       }
   }
 
@@ -77,4 +90,5 @@ if __name__ == '__main__':
   service = SubscriptionServiceRoot()
   service.subscriptions = SubscriptionServiceSubscriptions()
 
+  cherrypy.tools.CORS = cherrypy.Tool('before_finalize', CORS)
   cherrypy.quickstart(service, '/subscription-service', conf)

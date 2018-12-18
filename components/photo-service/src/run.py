@@ -27,7 +27,7 @@ def CORS():
   if cherrypy.request.method == 'OPTIONS':
     # preflign request
     # see http://www.w3.org/TR/cors/#cross-origin-request-with-preflight-0
-    cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST'
+    cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST,GET,DELETE'
     cherrypy.response.headers['Access-Control-Allow-Headers'] = 'cache-control,x-requested-with'
     cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
     # tell CherryPy no avoid normal handler
