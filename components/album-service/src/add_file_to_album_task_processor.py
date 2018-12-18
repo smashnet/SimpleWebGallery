@@ -36,9 +36,9 @@ class AddFileToAlbumTaskProcessor(threading.Thread):
 
       logging.info("Task found, processing...")
 
-      ## Store thumb information to DB
+      ## Add file to album in DB
       with sqlite3.connect(config.DB_STRING) as c:
-        c.execute("INSERT INTO album_photos VALUES (?, ?)",
+        c.execute("INSERT INTO album_files VALUES (?, ?)",
           [metadata['albumid'], metadata['fileid']])
 
       ## If successful, remove task from processing list

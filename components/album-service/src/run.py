@@ -49,7 +49,7 @@ def init_service():
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
     con.execute("CREATE TABLE IF NOT EXISTS albums (albumid, name, accesscode, creator, created)")
-    con.execute("CREATE TABLE IF NOT EXISTS album_photos (albumid, photoid)")
+    con.execute("CREATE TABLE IF NOT EXISTS album_files (albumid, fileid)")
     con.execute("CREATE TABLE IF NOT EXISTS album_subscriptions (albumid, subscriptionid)")
 
   ## Check DB version

@@ -1,7 +1,7 @@
 '''
-add_file_to_album_task_processor.py
+add_subscription_to_album_task_processor.py
 
-Processes tasks to add photos to albums
+Processes tasks to add subscriptions to albums
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de
@@ -36,7 +36,7 @@ class AddSubscriptionToAlbumTaskProcessor(threading.Thread):
 
       logging.info("Task found, processing...")
 
-      ## Store thumb information to DB
+      ## Add subscription to album in DB
       with sqlite3.connect(config.DB_STRING) as c:
         c.execute("INSERT INTO album_subscriptions VALUES (?, ?)",
           [metadata['albumid'], metadata['subscriptionid']])
