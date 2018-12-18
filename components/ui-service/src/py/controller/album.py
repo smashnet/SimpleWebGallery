@@ -42,8 +42,8 @@ class AlbumController(BaseController):
     template_vars['album_name'] = albuminfo['name']
     template_vars['album_accesscode'] = albuminfo['accesscode']
     template_vars['album_created'] = albuminfo['created']
-    template_vars['album_amount_photos'] = 42
-    template_vars['album_amount_subscriptions'] = 43
+    template_vars['album_amount_photos'] = len(albuminfo['files'])
+    template_vars['album_amount_subscriptions'] = len(albuminfo['subscriptions'])
 
     # create photo upload url
     template_vars["photo_upload_url"] = "http://%s/photo-service/photos" % config.PHOTO_SERVICE_URL
