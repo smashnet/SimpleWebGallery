@@ -87,6 +87,7 @@ services:
       - VIRTUAL_HOST=macfly.intern
     volumes:
       - ./swg.template:/etc/nginx/conf.d/swg.template
+      - ./uploadsize.conf:/etc/nginx/conf.d/uploadsize.conf
     ports:
       - 80:80
     depends_on:

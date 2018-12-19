@@ -31,7 +31,7 @@ class AdminController(BaseController):
     template_vars["adminlinks"] = []
 
     # Set album create url
-    template_vars["album_create_url"] = "http://%s/album-service/albums" % config.ALBUM_SERVICE_URL
+    template_vars["album_create_url"] = "/album-service/albums"
 
     # Get albums
     r = requests.get("http://album-service:8080/album-service/albums")

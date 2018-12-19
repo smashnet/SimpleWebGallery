@@ -19,14 +19,8 @@ import config
 from simplewebgallery import SimpleWebGallery
 
 def init_service():
-  ## Read backend service URLs from env
-  try:
-    config.ALBUM_SERVICE_URL = os.environ['ALBUM_SERVICE']
-    config.PHOTO_SERVICE_URL = os.environ['PHOTO_SERVICE']
-    config.SUBSCRIPTION_SERVICE_URL = os.environ['SUBSCRIPTION_SERVICE']
-    config.THUMBNAIL_SERVICE_URL = os.environ['THUMBNAIL_SERVICE']
-  except KeyError:
-    print("URLs for backend services are not correctly set in environment!")
+  ## Nothing todo currently
+  return
 
 def cleanup():
   ## TODO:

@@ -47,7 +47,7 @@ class AlbumController(BaseController):
     template_vars['album_amount_subscriptions'] = len(albuminfo['subscriptions'])
 
     # create photo upload url
-    template_vars["photo_upload_url"] = "http://%s/photo-service/photos" % config.PHOTO_SERVICE_URL
+    template_vars["photo_upload_url"] = "/photo-service/photos"
 
     # Set nav items
     template_vars["navlinks"] = [
@@ -95,8 +95,8 @@ class AlbumController(BaseController):
     for fileid in albuminfo['files']:
       r = requests.get("http://photo-service:8080/photo-service/photos/%s" % fileid)
       fileinfo = r.json()
-      fileinfo['thumburl'] = "http://%s/thumbnail-service/thumbnails/%s" % (config.THUMBNAIL_SERVICE_URL, fileid)
-      fileinfo['fileurl'] = "http://%s/photo-service/rawcontent/%s" % (config.PHOTO_SERVICE_URL, fileid)
+      fileinfo['thumburl'] = "/thumbnail-service/thumbnails/%s" % fileid
+      fileinfo['fileurl'] = "/photo-service/rawcontent/%s" % fileid
       photos.append(fileinfo)
     if photos is not []:
       template_vars["photos"] = photos
