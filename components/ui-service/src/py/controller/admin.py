@@ -38,6 +38,8 @@ class AdminController(BaseController):
     albums = r.json()
     if albums is not None:
       for album in albums:
-        album['albumurl'] = "/album/%s" % album['accesscode']
+        album['url_view'] = "/album/%s" % album['accesscode']
+        album['url_edit'] = "/admin/album/%s" % album['accesscode']
+        album['url_delete'] = "/album-service/albums/%s" % album['albumid']
       template_vars["albums"] = albums
     return self.render_template("admin/index.html", template_vars)

@@ -106,25 +106,25 @@ class AlbumServiceAlbums(object):
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
-  def DELETE(self, uuid=None):
-    if uuid == None:
+  def DELETE(self, albumid=None):
+    if albumid == None:
       return "No uuid given"
 
     # Check if is valid uuid
     try:
-      uuid.UUID(uuid, version=4)
+      uuid.UUID(albumid, version=4)
     except ValueError:
       return "Not a valid uuid"
 
     # TODO 1: Delete from album_subscribers
     with sqlite3.connect(config.DB_STRING) as c:
-      c.execute("DELETE FROM album_subscribers WHERE albumid=?", (str(uuid),))
+      c.execute("DELETE FROM album_subscriptions WHERE albumid=?", (str(albumid),))
     # TODO 2: Delete from album_photos
     with sqlite3.connect(config.DB_STRING) as c:
-      c.execute("DELETE FROM album_photos WHERE albumid=?", (str(uuid),))
+      c.execute("DELETE FROM album_files WHERE albumid=?", (str(albumid),))
     # TODO 3: Delete from albums
     with sqlite3.connect(config.DB_STRING) as c:
-      c.execute("DELETE FROM albums WHERE albumid=?", (str(uuid),))
+      c.execute("DELETE FROM albums WHERE albumid=?", (str(albumid),))
 
     return {"message": "Album deleted", "error": "OK"}
 
