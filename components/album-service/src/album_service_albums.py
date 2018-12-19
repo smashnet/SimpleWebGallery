@@ -15,6 +15,7 @@ from datetime import datetime
 import uuid
 import random
 import string
+import json
 
 import cherrypy
 import sqlite3
@@ -43,7 +44,8 @@ class AlbumServiceAlbums(object):
       album['files'] = fileids
 
       r = c.execute("SELECT subscriptionid FROM album_subscriptions WHERE albumid=?", (uuid,))
-      subscriptionids = common.DBtoList(r)
+      res = common.DBtoList(r)
+      subscriptionids = [item['subscriptionid'] for item in res]
       album['subscriptions'] = subscriptionids
 
       return album
@@ -118,13 +120,28 @@ class AlbumServiceAlbums(object):
     except ValueError:
       return "Not a valid uuid"
 
-    # TODO 1: Delete from album_subscribers
+    # Place task to delete files and thumbs from this album
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT fileid FROM album_files WHERE albumid=?", (albumid,))
+      res = common.DBtoList(r)
+      fileids = [item['fileid'] for item in res]
+      common.myRedis.lpush("delete-files", json.dumps(fileids)) # Add task to list
+      common.myRedis.lpush("delete-thumbs", json.dumps(fileids)) # Add task to list
+
+    # Place task to delete subscriptions for this album
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT subscriptionid FROM album_subscriptions WHERE albumid=?", (albumid,))
+      res = common.DBtoList(r)
+      subscriptionids = [item['subscriptionid'] for item in res]
+      common.myRedis.lpush("delete-subscriptions", json.dumps(subscriptionids)) # Add task to list
+
+    # Delete from album_subscriptions
     with sqlite3.connect(config.DB_STRING) as c:
       c.execute("DELETE FROM album_subscriptions WHERE albumid=?", (str(albumid),))
-    # TODO 2: Delete from album_photos
+    # Delete from album_files
     with sqlite3.connect(config.DB_STRING) as c:
       c.execute("DELETE FROM album_files WHERE albumid=?", (str(albumid),))
-    # TODO 3: Delete from albums
+    # Delete from albums
     with sqlite3.connect(config.DB_STRING) as c:
       c.execute("DELETE FROM albums WHERE albumid=?", (str(albumid),))
 
