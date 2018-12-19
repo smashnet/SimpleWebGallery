@@ -36,7 +36,8 @@ class AdminController(BaseController):
     # Get albums
     r = requests.get("http://album-service:8080/album-service/albums")
     albums = r.json()
-    for album in albums:
-      album['albumurl'] = "/album/%s" % album['accesscode']
-    template_vars["albums"] = albums
+    if albums is not None:
+      for album in albums:
+        album['albumurl'] = "/album/%s" % album['accesscode']
+      template_vars["albums"] = albums
     return self.render_template("admin/index.html", template_vars)
