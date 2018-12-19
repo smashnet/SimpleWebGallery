@@ -2,12 +2,10 @@ version: '3'
 
 services:
   redis:
-    image: redis
+    image: redis:alpine
     restart: always
     volumes:
       - redis-data:/data
-    ports:
-      - 6379:6379
     networks:
       - swg-net
     entrypoint: redis-server --appendonly yes
@@ -17,38 +15,65 @@ services:
     restart: always
     volumes:
       - album-service-data:/usr/src/app/album-service-data
-    ports:
-      - 10000:8080
+    depends_on:
+      - redis
+    networks:
+      - swg-net
 
   photo-service:
     build: ./components/photo-service
     restart: always
     volumes:
       - photo-service-data:/usr/src/app/photo-service-data
-    ports:
-      - 10001:8080
+    depends_on:
+      - redis
+    networks:
+      - swg-net
 
   subscription-service:
     build: ./components/subscription-service
     restart: always
     volumes:
       - subscription-service-data:/usr/src/app/subscription-service-data
-    ports:
-      - 10002:8080
+    depends_on:
+      - redis
+    networks:
+      - swg-net
 
   thumbnail-service:
     build: ./components/thumbnail-service
     restart: always
     volumes:
       - thumbnail-service-data:/usr/src/app/thumbnail-service-data
-    ports:
-      - 10003:8080
+    depends_on:
+      - redis
+    networks:
+      - swg-net
 
   ui-service:
     build: ./components/ui-service
     restart: always
+    networks:
+      - swg-net
+
+  proxy:
+    image: nginx
+    restart: always
+    environment:
+      - VIRTUAL_HOST=macfly.intern
+    volumes:
+      - ./swg.template:/etc/nginx/conf.d/swg.template
     ports:
-      - 8080:8080
+      - 80:80
+    depends_on:
+      - album-service
+      - photo-service
+      - subscription-service
+      - thumbnail-service
+      - ui-service
+    networks:
+      - swg-net
+    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/swg.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
 
 volumes:
   redis-data:

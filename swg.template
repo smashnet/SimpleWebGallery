@@ -1,0 +1,24 @@
+server {
+  listen 80;
+  server_name ${VIRTUAL_HOST};
+
+  location /album-service {
+    proxy_pass http://album-service:8080;
+  }
+
+  location /photo-service {
+    proxy_pass http://photo-service:8080;
+  }
+
+  location /subscription-service {
+    proxy_pass http://subscription-service:8080;
+  }
+
+  location /thumbnail-service {
+    proxy_pass http://thumbnail-service:8080;
+  }
+
+  location / {
+    proxy_pass http://ui-service:8080;
+  }
+}
