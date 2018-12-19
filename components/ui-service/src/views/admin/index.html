@@ -8,12 +8,12 @@
       <h1 class="jumbotron-heading">Administration panel</h1>
       <p class="lead text-muted">In this area you can manage your existing albums. <br />Create new ones, delete the ones you never wanted to exist, and much more ;)</p>
       <hr/>
-      <form action="{{ album_create_url }}" method="post" id="albumCreateForm" target="hiddenFrame" class="hasSubmitButton">
+      <div id="albumCreateForm" target="hiddenFrame" class="hasSubmitButton">
         <div class="form-group">
           <input type="text" class="form-control" id="inputAlbumName" name="albumname" aria-describedby="albumCreateHelp" placeholder="Album name">
         </div>
-        <button type="submit" class="btn btn-primary" id="submitButton">Create new album</button><br />
-      </form>
+        <button class="btn btn-primary" id="submitButton" onclick="postFormData('{{ album_create_url }}', 'inputAlbumName');">Create new album</button><br />
+      </div>
     </div>
   </section>
 

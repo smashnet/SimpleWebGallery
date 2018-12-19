@@ -77,17 +77,19 @@ class AlbumServiceAlbums(object):
     return self.getAlbumInformation(albumid)
 
   @cherrypy.tools.accept(media='application/json')
+  @cherrypy.tools.json_in()
   @cherrypy.tools.json_out()
-  def POST(self, albumname=None):
-    # TODO: Create new album with random accesscode and return information as JSON
-    if albumname == None:
+  def POST(self):
+    input_json = cherrypy.request.json
+
+    if input_json['albumname'] == None:
       return {"message": "No album created", "error": "Missing album name"}
 
     # TODO: Validate album name
 
     res = {
       "albumid": str(uuid.uuid4()),
-      "name": albumname,
+      "name": input_json['albumname'],
       "accesscode": ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)),
       "creator": cherrypy.request.remote.ip,
       "created": str(datetime.utcnow())
