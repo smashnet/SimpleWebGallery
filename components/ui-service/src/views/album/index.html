@@ -24,8 +24,9 @@
           <!-- Register for photo retrieval -->
           <p class="lead text-center">Du möchtest nach der Party alle Fotos haben?<br/> Kein Problem, einfach hier deine E-Mail-Adresse eintragen, und du bekommst bald einen Download-Link zugeschickt!</p>
           <hr class="my-4">
-          <form action="/subscription" method="post" id="mailSendForm" target="hiddenFrame" class="hasSubmitButton">
+          <form action="{{ register_subscription_url }}" method="post" id="mailSendForm" target="hiddenFrame" class="hasSubmitButton">
             <div class="form-group">
+              {% if album_id is defined %}<input type="hidden" name="albumid" value="{{ album_id }}">{% endif %}
               <label for="inputEmail">E-Mail-Adresse</label>
               <input type="email" class="form-control" id="inputEmail" name="mailaddress" aria-describedby="emailHelp" placeholder="Gebe hier deine E-Mail-Adresse ein">
               <small id="emailHelp" class="form-text text-muted">Deine E-Mail-Adresse bleibt natürlich unter uns. Ich benutze sie nur um dir den Download-Link zuzuschicken.</small>

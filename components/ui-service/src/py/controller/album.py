@@ -48,6 +48,8 @@ class AlbumController(BaseController):
 
     # create photo upload url
     template_vars["photo_upload_url"] = "/photo-service/photos"
+    template_vars["register_subscription_url"] = "/subscription-service/subscriptions"
+
 
     # Set nav items
     template_vars["navlinks"] = [

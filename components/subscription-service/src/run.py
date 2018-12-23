@@ -47,7 +47,7 @@ def init_service():
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
-    con.execute("CREATE TABLE IF NOT EXISTS subscriptions (uuid, mail, ip, dateSubscribed)")
+    con.execute("CREATE TABLE IF NOT EXISTS subscriptions (id, mail, ip, date_subscribed)")
 
   ## Check DB version
   with sqlite3.connect(config.DB_STRING) as con:
@@ -75,8 +75,8 @@ if __name__ == '__main__':
       },
       '/subscriptions': {
           'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
-          'tools.response_headers.on': True,
-          'tools.response_headers.headers': [('Content-Type', 'application/json')],
+          #'tools.response_headers.on': True,
+          #'tools.response_headers.headers': [('Content-Type', 'application/json')],
           'tools.CORS.on': True
       }
   }

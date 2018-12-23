@@ -13,6 +13,9 @@ License: MIT License
 import os, os.path
 from datetime import datetime
 import uuid
+import logging
+import re
+import json
 
 import cherrypy
 import sqlite3
@@ -21,22 +24,23 @@ import hashlib
 import config
 import common
 
+@cherrypy.expose
 class SubscriptionServiceSubscriptions(object):
 
   def getListOfAllSubscriptions(self):
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT * FROM subscribers")
+      r = c.execute("SELECT * FROM subscriptions")
       res = common.DBtoDict(r)
       for item in res:
         # Add subscriberurl
-        item["url"] = "/subscription/%s" % item["uuid"]
+        item["url"] = "/subscriptions/%s" % item["uuid"]
       if len(res) == 0:
         return None
       return res
 
   def mailExists(self, mail):
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT * FROM subscribers WHERE mail=? LIMIT 1", (mail,))
+      r = c.execute("SELECT * FROM subscriptions WHERE mail=? LIMIT 1", (mail,))
       if len(r.fetchall()) == 0:
         return False
       else:
@@ -44,7 +48,7 @@ class SubscriptionServiceSubscriptions(object):
 
   def getSingleSubscriber(self, uuid):
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT uuid, mail, ip, dateSubscribed FROM subscribers WHERE uuid=?", (str(uuid),))
+      r = c.execute("SELECT * FROM subscriptions WHERE id=?", (str(uuid),))
       res = common.DBtoDict(r)
       if len(res) > 0:
         return res[0]
@@ -52,7 +56,6 @@ class SubscriptionServiceSubscriptions(object):
         return {"error": "UUID unknown"}
 
   @cherrypy.tools.json_out()
-  @cherrypy.expose
   def GET(self, subscriberuuid=None):
     # If no parameter is provided -> error
     if subscriberuuid is None:
@@ -68,32 +71,47 @@ class SubscriptionServiceSubscriptions(object):
     return self.getSingleSubscriber(subscriberuuid)
 
   @cherrypy.tools.json_out()
-  @cherrypy.expose
-  def POST(self, mailaddress):
+  def POST(self, mailaddress, albumid):
     # Check mail validity
     if not re.match(r"[^@]+@[^@]+\.[^@]+", mailaddress):
+      logging.warn("Mail address from POST is not a valid mail address.")
       return {"error": "Not a valid mail address"}
 
-    res = {"id": str(uuid.uuid4()), "mail": mailaddress, "ip": cherrypy.request.remote.ip, "dateSubscribed": str(datetime.utcnow())}
+    # Check if albumid is valid uuid
+    try:
+      uuid.UUID(albumid, version=4)
+    except ValueError:
+      logging.warn("Album ID from POST is not a valid UUID.")
+      return {"error": "Not a UUID"}
 
-    # Check if mail already exists
-    if not self.mailExists(res['mail']):
+    info = {"id": str(uuid.uuid4()), "mail": mailaddress, "ip": cherrypy.request.remote.ip, "date-subscribed": str(datetime.utcnow())}
+
+    # If mail not already registered
+    if not self.mailExists(info['mail']):
+      # Save subscription in DB
       with sqlite3.connect(config.DB_STRING) as c:
-        c.execute("INSERT INTO subscribers VALUES (?, ?, ?, ?)",
-          [res['id'], res['mail'], res['ip'], res['dateSubscribed']])
+        c.execute("INSERT INTO subscriptions VALUES (?, ?, ?, ?)",
+          [info['id'], info['mail'], info['ip'], info['date-subscribed']])
+      # Place task to add subscription in album service
+      taskitem = {"subscription-id": info['id'], "album-id": albumid}
+      common.myRedis.lpush("add-subscription-to-album", json.dumps(taskitem)) # Add task to list
 
-      return res
+      logging.info("Saved new subscription for album %s" % albumid)
+
+      return info
     else:
       return {"error": "You already subscribed!"}
 
   @cherrypy.tools.json_out()
-  @cherrypy.expose
   def DELETE(self, userid):
     # Delete user from DB
     if len(userid) == 0:
       return {"error": "No user provided for deletion"}
     else:
       with sqlite3.connect(config.DB_STRING) as c:
-        c.execute("DELETE FROM subscribers WHERE uuid=?", (str(userid),))
+        c.execute("DELETE FROM subscriptions WHERE id=?", (str(userid),))
 
       return {"deleted": userid}
+
+  def OPTIONS(self, userid):
+    return

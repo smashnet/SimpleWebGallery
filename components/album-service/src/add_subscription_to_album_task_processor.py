@@ -38,7 +38,7 @@ class AddSubscriptionToAlbumTaskProcessor(threading.Thread):
       ## Add subscription to album in DB
       with sqlite3.connect(config.DB_STRING) as c:
         c.execute("INSERT INTO album_subscriptions VALUES (?, ?)",
-          [metadata['albumid'], metadata['subscriptionid']])
+          [metadata['album-id'], metadata['subscription-id']])
 
       ## If successful, remove task from processing list
       logging.info("Removing task from processing list")
