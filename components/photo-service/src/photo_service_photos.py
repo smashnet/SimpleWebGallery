@@ -71,21 +71,38 @@ class PhotoServicePhotos(object):
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
-  def GET(self, photouuid=None):
+  def GET(self, photouuid=None, files=None):
     # Check if uuid given
-    if photouuid == None:
+    if photouuid == None and files == None:
       return "No uuid given"
-    # Check if is valid uuid
-    try:
-      uuid.UUID(photouuid, version=4)
-    except ValueError:
-      return "Not a valid uuid"
 
-    # Get file information from DB
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT * FROM files WHERE fileid=?", (str(photouuid),))
-      res = common.DBtoDict(r)
-      return res
+    # Check if is valid uuid
+    if files is not None:
+      # Check all uuids
+      for id in files:
+        try:
+          uuid.UUID(id, version=4)
+        except ValueError:
+          logging.warn("At least one item in JSON content is not a UUID")
+          return {"error": "At least one item in JSON content is not a UUID"}
+
+      # Return file information for all files
+      with sqlite3.connect(config.DB_STRING) as c:
+        r = c.execute("SELECT * FROM files WHERE fileid IN (%s)" % ','.join('"%s"'%x for x in files))
+        res = common.DBtoList(r)
+        return res
+    else:
+      try:
+        uuid.UUID(photouuid, version=4)
+      except ValueError:
+        logging.warn("Not a valid UUID")
+        return {"error": "Not a valid uuid"}
+
+      # Return file information for single file
+      with sqlite3.connect(config.DB_STRING) as c:
+        r = c.execute("SELECT * FROM files WHERE fileid=?", (str(photouuid),))
+        res = common.DBtoDict(r)
+        return res
 
   @cherrypy.tools.json_out()
   def POST(self, file, albumid):

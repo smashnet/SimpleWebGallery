@@ -12,6 +12,7 @@ License: MIT License
 
 import cherrypy
 import requests
+import json
 
 import common
 import config
@@ -74,7 +75,6 @@ class AlbumController(BaseController):
     # args[2] -> "fullscreen"
 
     # args[0] should be the 8-digit-access-code
-    # TODO: Check with AlbumService if album with this code exists
     if len(args) == 0 or not common.isValidAccessCode(args[0]):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
@@ -89,16 +89,19 @@ class AlbumController(BaseController):
     r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
     albuminfo = r.json()
 
+    # Get file information
+    r = requests.get("http://photo-service:8080/photo-service/photos", params={"files": albuminfo['files']})
+    files = r.json()
+
     # TODO: Get list of photos
     # photo.thumburl
     # photo.photourl
     # photo.uploaded
     photos = []
-    for fileid in albuminfo['files']:
-      r = requests.get("http://photo-service:8080/photo-service/photos/%s" % fileid)
-      fileinfo = r.json()
-      fileinfo['thumburl'] = "/thumbnail-service/thumbnails/%s" % fileid
-      fileinfo['fileurl'] = "/photo-service/rawcontent/%s" % fileid
+    for file in files:
+      fileinfo = file
+      fileinfo['thumburl'] = "/thumbnail-service/thumbnails/%s" % file['fileid']
+      fileinfo['fileurl'] = "/photo-service/rawcontent/%s" % file['fileid']
       photos.append(fileinfo)
     if photos is not []:
       template_vars["photos"] = photos

@@ -13,7 +13,6 @@ License: MIT License
 import cherrypy
 import requests
 
-import config
 from controller.base import BaseController
 
 class AdminController(BaseController):
