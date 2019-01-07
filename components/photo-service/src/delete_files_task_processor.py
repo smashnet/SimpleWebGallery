@@ -14,6 +14,7 @@ import redis
 import logging
 import json
 import sqlite3
+import os
 
 import config
 import common
@@ -36,7 +37,19 @@ class DeleteFilesTaskProcessor(threading.Thread):
       logging.info("Task found, processing...")
 
       ## TODO
+      # Delete files from storage
+      with sqlite3.connect(config.DB_STRING) as c:
+        for fileid in metadata:
+          r = c.execute("SELECT * FROM files WHERE fileid=?", (str(fileid),))
+          res = common.DBtoDict(r)
+          if res == {}:
+            return {"error": "The photo with the provided id does not exist"}
+
+          try:
+            os.remove(config.PHOTO_DIR + "/%s%s" % (res['fileid'],res['extension']))
+          except FileNotFoundError:
+            logging.warn("File %s%s already gone" % (res['fileid'],res['extension']))
 
       ## If successful, remove task from processing list
       logging.info("Removing task from processing list")
-      res = self.myRedis.lrem('add-file-to-album-processing', 0 , task)
+      res = self.myRedis.lrem('delete-files-processing', 0 , task)
