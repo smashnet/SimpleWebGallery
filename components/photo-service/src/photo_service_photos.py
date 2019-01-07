@@ -152,31 +152,28 @@ class PhotoServicePhotos(object):
     if len(photouuid) == 0:
       return {"error": "No photos provided for deletion"}
     else:
-      if photouuid == "all":
-        self.deleteAllPhotos()
-      else:
-        # Check if is valid uuid
-        try:
-          uuid.UUID(photouuid, version=4)
-        except ValueError:
-          return "Not a valid uuid"
-        # Delete photos from storage
-        with sqlite3.connect(config.DB_STRING) as c:
-          r = c.execute("SELECT filename FROM files WHERE uuid=?", (str(photouuid),))
-          filename = r.fetchone()
-          if filename is None:
-            return {"error": "The photo with the provided id does not exist"}
-        try:
-          os.remove(config.PHOTO_DIR + "/%s" % str(filename[0]))
-        except FileNotFoundError:
-          print("File %s already gone" % str(filename[0]))
+      # Check if is valid uuid
+      try:
+        uuid.UUID(photouuid, version=4)
+      except ValueError:
+        return {"error": "Not a valid UUID"}
 
-        # Delete photos from DB
-        with sqlite3.connect(config.DB_STRING) as c:
-          c.execute("DELETE FROM files WHERE uuid=?", (str(photouuid),))
+      # Delete photos from storage
+      with sqlite3.connect(config.DB_STRING) as c:
+        r = c.execute("SELECT * FROM files WHERE fileid=?", (str(photouuid),))
+        res = common.DBtoDict(r)
+        if res == {}:
+          return {"error": "The photo with the provided id does not exist"}
+      try:
+        os.remove(config.PHOTO_DIR + "/%s%s" % (res['fileid'],res['extension']))
+      except FileNotFoundError:
+        print("File %s%s already gone" % (res['fileid'],res['extension']))
 
+      # Delete photos from DB
+      with sqlite3.connect(config.DB_STRING) as c:
+        c.execute("DELETE FROM files WHERE uuid=?", (str(photouuid),))
 
-        return {"deleted": photouuid}
+      return {"message": "Deletion successful", "uuid": photouuid}
 
   def OPTIONS(self):
     return None
