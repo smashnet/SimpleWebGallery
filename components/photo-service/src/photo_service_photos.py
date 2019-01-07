@@ -66,15 +66,19 @@ class PhotoServicePhotos(object):
     except (AttributeError, KeyError, IndexError):
       # cases: image don't have getexif
       pass
+
     image.save(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']))
     image.close()
+
+    with open(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']), "rb") as the_file:
+      return the_file.read()
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
   def GET(self, photouuid=None, files=None):
     # Check if uuid given
     if photouuid == None and files == None:
-      return "No uuid given"
+      return {"error": "No UUID given"}
 
     # Check if is valid uuid
     if files is not None:
@@ -110,7 +114,7 @@ class PhotoServicePhotos(object):
     info, data = self.receive_new_photo(file)
 
     ## Rotate image if necessary, and write to storage
-    self.rotate_and_store(info, data)
+    rotated_data = self.rotate_and_store(info, data)
 
     ## Save photo in DB
     with sqlite3.connect(config.DB_STRING) as c:
@@ -118,7 +122,7 @@ class PhotoServicePhotos(object):
         [info['fileid'], info['filename'], info['extension'], info['content_type'], info['md5'], info['uploader'], info['uploaded']])
 
     ## Create task to create thumbnails
-    common.myRedis.set(info['fileid'], bytes(data)) # Save data to redis, key: uuid
+    common.myRedis.set(info['fileid'], bytes(rotated_data)) # Save data to redis, key: uuid
     taskitem = {"fileid": info['fileid'], "extension": info['extension']}
     common.myRedis.lpush("create-thumbnail", json.dumps(taskitem)) # Add task to list
 

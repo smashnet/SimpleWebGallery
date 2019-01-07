@@ -60,12 +60,12 @@ class CreateThumbnailTaskProcessor(threading.Thread):
       res = self.myRedis.lrem('create-thumbnail-processing', 0 , task)
 
   def createThumbsAndStore(self, meta, filedata):
+    image = Image.open(io.BytesIO(filedata))
+
     for size in config.THUMB_SIZES:
       logging.info("Creating %spx thumbnail..." % size)
       mysize = size, size
       fn, filext = meta['fileid'], meta['extension']
-
-      image = Image.open(io.BytesIO(filedata))
       thumb = image.copy()
       thumb.thumbnail(mysize)
       thumb.save(config.THUMB_DIR + "/%s_%s%s" %(fn, str(size), filext))

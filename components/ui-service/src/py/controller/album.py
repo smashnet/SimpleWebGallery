@@ -89,25 +89,22 @@ class AlbumController(BaseController):
     r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
     albuminfo = r.json()
 
-    # Get file information
-    r = requests.get("http://photo-service:8080/photo-service/photos", params={"files": albuminfo['files']})
-    files = r.json()
+    if len(albuminfo['files']) > 0:
+      # Get file information
+      r = requests.get("http://photo-service:8080/photo-service/photos", params={"files": albuminfo['files']})
+      files = r.json()
 
-    # TODO: Get list of photos
-    # photo.thumburl
-    # photo.photourl
-    # photo.uploaded
-    photos = []
-    for file in files:
-      fileinfo = file
-      fileinfo['thumburl'] = "/thumbnail-service/thumbnails/%s" % file['fileid']
-      fileinfo['fileurl'] = "/photo-service/rawcontent/%s" % file['fileid']
-      photos.append(fileinfo)
-    if photos is not []:
-      template_vars["photos"] = photos
-      # Prune dateUploaded
-      for item in template_vars["photos"]:
-        item["uploaded"] = item["uploaded"].split('.')[0]
+      photos = []
+      for file in files:
+        fileinfo = file
+        fileinfo['thumburl'] = "/thumbnail-service/thumbnails/%s" % file['fileid']
+        fileinfo['fileurl'] = "/photo-service/rawcontent/%s" % file['fileid']
+        photos.append(fileinfo)
+      if photos is not []:
+        template_vars["photos"] = photos
+        # Prune dateUploaded
+        for item in template_vars["photos"]:
+          item["uploaded"] = item["uploaded"].split('.')[0]
 
     # check if fullscreen
     if len(args) > 2 and args[2] == "fullscreen":
