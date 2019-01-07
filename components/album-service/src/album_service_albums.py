@@ -74,7 +74,7 @@ class AlbumServiceAlbums(object):
     try:
       uuid.UUID(albumid, version=4)
     except ValueError:
-      return "Not a valid uuid"
+      return {"error": "Not a valid UUID"}
 
     return self.getAlbumInformation(albumid)
 

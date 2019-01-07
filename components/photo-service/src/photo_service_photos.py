@@ -82,13 +82,27 @@ class PhotoServicePhotos(object):
 
     # Check if is valid uuid
     if files is not None:
-      # Check all uuids
-      for id in files:
+      # Sadly, we have to consider files being a single UUID, and not a list of uuids
+      # so we have to check and handle this here
+      if isinstance(files, str):
+        # We have a single UUID
         try:
-          uuid.UUID(id, version=4)
+          uuid.UUID(files, version=4)
         except ValueError:
           logging.warn("At least one item in JSON content is not a UUID")
           return {"error": "At least one item in JSON content is not a UUID"}
+
+        theSingleUUID = files
+        files = []
+        files.append(theSingleUUID)
+      else:
+        # Check all uuids
+        for id in files:
+          try:
+            uuid.UUID(id, version=4)
+          except ValueError:
+            logging.warn("At least one item in JSON content is not a UUID")
+            return {"error": "At least one item in JSON content is not a UUID"}
 
       # Return file information for all files
       with sqlite3.connect(config.DB_STRING) as c:
