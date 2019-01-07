@@ -126,7 +126,6 @@ class AlbumServiceAlbums(object):
       res = common.DBtoList(r)
       fileids = [item['fileid'] for item in res]
       common.myRedis.lpush("delete-files", json.dumps(fileids)) # Add task to list
-      common.myRedis.lpush("delete-thumbs", json.dumps(fileids)) # Add task to list
 
     # Place task to delete subscriptions for this album
     with sqlite3.connect(config.DB_STRING) as c:
