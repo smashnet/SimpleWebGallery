@@ -112,13 +112,13 @@ class AlbumServiceAlbums(object):
   @cherrypy.tools.json_out()
   def DELETE(self, albumid=None):
     if albumid == None:
-      return "No uuid given"
+      return {"error": "No UUID given"}
 
     # Check if is valid uuid
     try:
       uuid.UUID(albumid, version=4)
     except ValueError:
-      return "Not a valid uuid"
+      return {"error": "Not a valid UUID"}
 
     # Place task to delete files and thumbs from this album
     with sqlite3.connect(config.DB_STRING) as c:
