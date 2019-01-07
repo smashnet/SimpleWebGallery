@@ -32,7 +32,9 @@ class DeleteFilesTaskProcessor(threading.Thread):
 
       task = self.myRedis.brpoplpush('delete-files', 'delete-files-processing')
       metadata = json.loads(task)
-      logging.info(metadata)
+
+      # Also place task to delete thumbnails of these
+      self.myRedis.lpush("delete-thumbs", json.dumps(metadata)) # Add task to list
 
       logging.info("Task found, processing...")
 
