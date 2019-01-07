@@ -22,6 +22,7 @@ import config
 from thumbnail_service_root import ThumbnailServiceRoot
 from thumbnail_service_thumbnails import ThumbnailServiceThumbnails
 from create_thumbnail_task_processor import CreateThumbnailTaskProcessor
+from delete_thumbs_task_processor import DeleteThumbsTaskProcessor
 
 def CORS():
   if cherrypy.request.method == 'OPTIONS':
@@ -49,6 +50,11 @@ def init_service():
   common.taskThread.daemon = True
   common.taskThread.start()
 
+  ## Listen on redis channel _delete-thumbs_ for new tasks
+  common.deleteThumsTaskThread = DeleteThumbsTaskProcessor()
+  common.deleteThumsTaskThread.daemon = True
+  common.deleteThumsTaskThread.start()
+
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
@@ -71,6 +77,7 @@ def init_service():
 
 def cleanup():
   common.taskThread.join(timeout=1.0)
+  common.deleteThumsTaskThread.join(timeout=1.0)
   return
 
 if __name__ == '__main__':
