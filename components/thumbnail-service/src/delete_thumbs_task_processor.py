@@ -35,8 +35,23 @@ class DeleteThumbsTaskProcessor(threading.Thread):
 
       logging.info("Task found, processing...")
 
-      ## TODO
+      # Delete thumbs from storage
+      with sqlite3.connect(config.DB_STRING) as c:
+        for thumbid in metadata:
+          r = c.execute("SELECT * FROM thumbnails WHERE thumbid=?", (str(thumbid),))
+          res = common.DBtoDict(r)
+          if res == {}:
+            return {"error": "The thumbnail with the provided id does not exist"}
 
+          # Delete thumbs from storage
+          try:
+            for size in config.THUMB_SIZES:
+              os.remove(config.THUMB_DIR + "/%s_%s%s" %(res['thumbid'], str(size), res['extension']))
+          except FileNotFoundError:
+            logging.warn("File %s%s already gone" % (res['fileid'],res['extension']))
+
+          # Delete thumbs from DB
+          c.execute("DELETE FROM thumbnails WHERE thumbid=?", (str(thumbid),))
 
       ## If successful, remove task from processing list
       logging.info("Removing task from processing list")

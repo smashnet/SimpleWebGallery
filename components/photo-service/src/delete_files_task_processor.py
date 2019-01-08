@@ -47,10 +47,14 @@ class DeleteFilesTaskProcessor(threading.Thread):
           if res == {}:
             return {"error": "The photo with the provided id does not exist"}
 
+          # Delete file from storage
           try:
             os.remove(config.PHOTO_DIR + "/%s%s" % (res['fileid'],res['extension']))
           except FileNotFoundError:
             logging.warn("File %s%s already gone" % (res['fileid'],res['extension']))
+
+          # Delete files from DB
+          c.execute("DELETE FROM files WHERE fileid=?", (str(fileid),))
 
       ## If successful, remove task from processing list
       logging.info("Removing task from processing list")

@@ -171,7 +171,7 @@ class PhotoServicePhotos(object):
 
       # Delete photos from DB
       with sqlite3.connect(config.DB_STRING) as c:
-        c.execute("DELETE FROM files WHERE uuid=?", (str(photouuid),))
+        c.execute("DELETE FROM files WHERE fileid=?", (str(photouuid),))
 
       return {"message": "Deletion successful", "uuid": photouuid}
 
