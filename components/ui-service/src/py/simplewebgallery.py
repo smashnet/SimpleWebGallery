@@ -18,10 +18,6 @@ import cherrypy
 from controller.home import HomeController
 from controller.album import AlbumController
 from controller.admin import AdminController
-from controller.photos_overview import PhotosOverviewController
-from controller.slideshow import SlideshowController
-from controller.photos_admin import PhotosAdminController
-from controller.subscriptions_admin import SubscriptionsAdminController
 
 class SimpleWebGallery(object):
 
@@ -43,22 +39,9 @@ class SimpleWebGallery(object):
     return c.index(args)
 
   @cherrypy.expose
-  def overview(self, mode=None, startIndex=0):
-    c = PhotosOverviewController()
-    return c.index(mode, startIndex)
-
-  @cherrypy.expose
-  def slideshow(self, startIndex=0):
-    c = SlideshowController()
-    return c.index(startIndex)
-
-  @cherrypy.expose
-  def admin(self, section=None):
-    if section == "photos":
-      c = PhotosAdminController()
-      return c.index()
-    if section == "subscriptions":
-      c = SubscriptionsAdminController()
-      return c.index()
+  def admin(self, item=None, accessCode=None):
+    # TODO: handle /admin/album/code
+    # TODO: handle /admin/album/code/files
+    # TODO: handle /admin/album/code/subscriptions
     c = AdminController()
     return c.index()

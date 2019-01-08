@@ -4,6 +4,9 @@ components/ui-service/static/js
 components/ui-service/static/css
 *-data
 
+# Other crap
+.DS_Store
+
 # SWP files from vim
 *.swp
 
