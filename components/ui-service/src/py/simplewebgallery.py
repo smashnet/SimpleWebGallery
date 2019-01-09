@@ -18,25 +18,42 @@ import cherrypy
 from controller.home import HomeController
 from controller.album import AlbumController
 from controller.admin import AdminController
+from controller.pagenotfound import PageNotFoundController
 
 class SimpleWebGallery(object):
 
   @cherrypy.expose
   def default(self, *args, **kwargs):
-    return open('src/views/404.html')
+    c = PageNotFoundController()
+    return c.index()
 
   @cherrypy.expose
   def index(self):
+    # /
+    # Home page where access code can be entered
     c = HomeController()
     return c.index()
 
   @cherrypy.expose
   def album(self, *args, **kwargs):
     c = AlbumController()
-    # Route to get the overview of a certain album, e.g. /album/12345678/overview
+    # /album
+    # Not valid without further parameters
+    if len(args) == 0:
+      c = PageNotFoundController()
+      return c.index()
+
+    # /album/accessCode
+    # Home page of this album. Access code validity is checked in controller
+    if len(args) == 1:
+      return c.index(args)
+
+    # /album/accessCode/overview
+    # Route to get the overview of a certain album
     if len(args) >= 2 and args[1] == "overview":
       return c.overview(args)
-    return c.index(args)
+    c = PageNotFoundController()
+    return c.index()
 
   @cherrypy.expose
   def admin(self, item=None, accessCode=None):
