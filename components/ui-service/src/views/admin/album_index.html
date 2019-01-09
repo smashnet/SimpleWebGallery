@@ -5,8 +5,8 @@
 
   <section class="jumbotron text-center">
     <div class="container">
-      <h1 class="jumbotron-heading">Administration panel</h1>
-      <p class="lead text-muted">Choose what to administrate:</p>
+      <h1 class="jumbotron-heading">Album administration</h1>
+      <p class="lead text-muted">{{ album.name }}</p>
       <p>
         {% for adminlink in adminlinks %}
         <a class="btn btn-secondary my-2" href="{{ adminlink.href }}">{{ adminlink.name }}</a>
@@ -17,8 +17,36 @@
 
   <div class="album py-5 bg-light">
     <div class="container">
-
-
+      <table class="table">
+        <tbody class="thead-light">
+          <tr>
+            <th>Title</th>
+            <td>{{ album.name }}</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th>Access code</th>
+            <td>{{ album.access_code }}</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th>Date created</th>
+            <td>{{ album.created }}</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th>Number of files</th>
+            <td>{{ album.amount_files }}</td>
+            <td><a type="button" class="btn btn-sm btn-outline-primary" href="{{ album.edit_files_url }}" onclick="">Edit</a></td>
+          </tr>
+          <tr>
+            <th>Number of subscriptions</th>
+            <td>{{ album.amount_subscriptions }}</td>
+            <td><a type="button" class="btn btn-sm btn-outline-primary" href="{{ album.edit_subscriptions_url }}" onclick="">Edit</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="lead text-muted text-center">UUID: {{ album.id }}<br><a type="button" class="btn btn-sm btn-outline-danger" href="/admin" onclick="deleteData('{{ album.delete_album_url }}'); return false;">Delete</a></p>
     </div>
   </div>
 

@@ -13,6 +13,7 @@ License: MIT License
 import cherrypy
 import requests
 
+import common
 from controller.base import BaseController
 
 class AdminController(BaseController):
@@ -25,7 +26,7 @@ class AdminController(BaseController):
   def index(self):
     template_vars = {"bodyclass": "class=main"}
     template_vars["title"] = {
-    "name": "SimpleWebGallery - Administration",
+    "name": "SWG - Administration",
     "href": "/admin"
     }
     # Set navbar links
@@ -54,7 +55,36 @@ class AdminController(BaseController):
   @cherrypy.expose
   def album_index(self, args=None):
     template_vars = {"bodyclass": "class=main"}
-    # TODO
+    # args[0] -> "album"
+    # args[1] -> accessCode
+
+    # Check if is valid access code
+    if len(args) < 2 or not common.isValidAccessCode(args[1]):
+      return self.render_template("admin/wrongAccessCode.html", template_vars)
+
+    # Resolve access code to id. Returns {} if no album with this code exists
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[1])
+    if r.json() == {}:
+      return self.render_template("admin/wrongAccessCode.html", template_vars)
+
+    albummeta = r.json()
+
+    # Get album information
+    r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
+    albuminfo = r.json()
+
+    template_vars['album'] = {
+      "id": albuminfo['albumid'],
+      "name": albuminfo['name'],
+      "access_code": albuminfo['accesscode'],
+      "created": albuminfo['created'].split('.')[0],
+      "amount_files": len(albuminfo['files']),
+      "amount_subscriptions": len(albuminfo['subscriptions']),
+      "edit_files_url": "/admin/album/%s/files" % albuminfo['accesscode'],
+      "edit_subscriptions_url": "/admin/album/%s/subscriptions" % albuminfo['accesscode'],
+      "delete_album_url": "/album-service/albums/%s" % albummeta['albumid']
+    }
+
     return self.render_template("admin/album_index.html", template_vars)
 
   '''
