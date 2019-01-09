@@ -59,10 +59,10 @@ class SimpleWebGallery(object):
 
   @cherrypy.expose
   def admin(self, *args, **kwargs):
+    c = AdminController()
     # /admin
     # General admin page where albums are listed an new ones can be created
     if len(args) == 0:
-      c = AdminController()
       return c.index()
 
     # /admin/???
@@ -74,20 +74,17 @@ class SimpleWebGallery(object):
     # /admin/album/???
     # Main admin page for a certain album
     if len(args) == 2 and args[0] == "album":
-      # TODO
-      return
+      return c.album_index(args)
 
     # /admin/album/code/files
     # Files admin page for a certain album
     if len(args) == 3 and args[0] == "album" and args[2] == "files":
-      # TODO
-      return
+      return c.album_files(args)
 
     # /admin/album/code/subscriptions
     # Subscriptions admin page for a certain album
     if len(args) == 3 and args[0] == "album" and args[2] == "subscriptions":
-      # TODO
-      return
+      return c.album_subscriptions(args)
 
     # Everything else is not valid, so:
     c = PageNotFoundController()
