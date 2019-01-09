@@ -12,7 +12,7 @@
         <div class="form-group">
           <input type="text" class="form-control" id="inputAlbumName" name="albumname" aria-describedby="albumCreateHelp" placeholder="Album name">
         </div>
-        <button class="btn btn-primary" id="submitButton" onclick="postFormData('{{ album_create_url }}', 'inputAlbumName');">Create new album</button><br />
+        <button class="btn btn-primary" id="submitButton" onclick="postFormData('{{ create_album_url }}', 'inputAlbumName');">Create new album</button><br />
       </div>
     </div>
   </section>
@@ -40,9 +40,9 @@
             <td>{{ album.creator }}</td>
             <td>{{ album.created }}</td>
             <td>
-              <a type="button" class="btn btn-sm btn-outline-primary" href="{{ album.url_edit }}" onclick="">Edit</a>
-              <a type="button" class="btn btn-sm btn-outline-secondary" href="{{ album.url_view }}" onclick="">View</a>
-              <a type="button" class="btn btn-sm btn-outline-danger" href="#" onclick="deleteData('{{ album.url_delete }}')">Delete</a>
+              <a type="button" class="btn btn-sm btn-outline-primary" href="{{ album.edit_url }}" onclick="">Edit</a>
+              <a type="button" class="btn btn-sm btn-outline-secondary" href="{{ album.view_url }}" onclick="">View</a>
+              <a type="button" class="btn btn-sm btn-outline-danger" href="#" onclick="deleteData('{{ album.delete_url }}')">Delete</a>
             </td>
           </tr>
           {% endfor %}

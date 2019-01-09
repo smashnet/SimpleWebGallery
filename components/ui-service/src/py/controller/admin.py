@@ -29,22 +29,18 @@ class AdminController(BaseController):
     "name": "SWG - Administration",
     "href": "/admin"
     }
-    # Set navbar links
-    template_vars["navlinks"] = []
-    # Set admin area links# Set navbar links
-    template_vars["adminlinks"] = []
 
     # Set album create url
-    template_vars["album_create_url"] = "/album-service/albums"
+    template_vars["create_album_url"] = "/album-service/albums"
 
     # Get albums
     r = requests.get("http://album-service:8080/album-service/albums")
     albums = r.json()
     if albums is not None:
       for album in albums:
-        album['url_view'] = "/album/%s" % album['accesscode']
-        album['url_edit'] = "/admin/album/%s" % album['accesscode']
-        album['url_delete'] = "/album-service/albums/%s" % album['albumid']
+        album['view_url'] = "/album/%s" % album['accesscode']
+        album['edit_url'] = "/admin/album/%s" % album['accesscode']
+        album['delete_url'] = "/album-service/albums/%s" % album['albumid']
       template_vars["albums"] = albums
     return self.render_template("admin/index.html", template_vars)
 
@@ -55,6 +51,10 @@ class AdminController(BaseController):
   @cherrypy.expose
   def album_index(self, args=None):
     template_vars = {"bodyclass": "class=main"}
+    template_vars["title"] = {
+    "name": "SWG - Administration",
+    "href": "/admin"
+    }
     # args[0] -> "album"
     # args[1] -> accessCode
 
@@ -94,6 +94,10 @@ class AdminController(BaseController):
   @cherrypy.expose
   def album_files(self, args=None):
     template_vars = {"bodyclass": "class=main"}
+    template_vars["title"] = {
+    "name": "SWG - Administration",
+    "href": "/admin"
+    }
     # TODO
     return self.render_template("admin/album_files.html", template_vars)
 
@@ -104,5 +108,9 @@ class AdminController(BaseController):
   @cherrypy.expose
   def album_subscriptions(self, args=None):
     template_vars = {"bodyclass": "class=main"}
+    template_vars["title"] = {
+    "name": "SWG - Administration",
+    "href": "/admin"
+    }
     # TODO
     return self.render_template("admin/album_subscriptions.html", template_vars)
