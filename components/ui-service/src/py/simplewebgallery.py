@@ -52,13 +52,43 @@ class SimpleWebGallery(object):
     # Route to get the overview of a certain album
     if len(args) >= 2 and args[1] == "overview":
       return c.overview(args)
+
+    # Everything else is not valid, so:
     c = PageNotFoundController()
     return c.index()
 
   @cherrypy.expose
-  def admin(self, item=None, accessCode=None):
-    # TODO: handle /admin/album/code
-    # TODO: handle /admin/album/code/files
-    # TODO: handle /admin/album/code/subscriptions
-    c = AdminController()
+  def admin(self, *args, **kwargs):
+    # /admin
+    # General admin page where albums are listed an new ones can be created
+    if len(args) == 0:
+      c = AdminController()
+      return c.index()
+
+    # /admin/???
+    # Is not valid as we need an access code
+    if len(args) == 1:
+      c = PageNotFoundController()
+      return c.index()
+
+    # /admin/album/???
+    # Main admin page for a certain album
+    if len(args) == 2 and args[0] == "album":
+      # TODO
+      return
+
+    # /admin/album/code/files
+    # Files admin page for a certain album
+    if len(args) == 3 and args[0] == "album" and args[2] == "files":
+      # TODO
+      return
+
+    # /admin/album/code/subscriptions
+    # Subscriptions admin page for a certain album
+    if len(args) == 3 and args[0] == "album" and args[2] == "subscriptions":
+      # TODO
+      return
+
+    # Everything else is not valid, so:
+    c = PageNotFoundController()
     return c.index()
