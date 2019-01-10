@@ -54,7 +54,7 @@ def init_service():
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
-    con.execute("CREATE TABLE IF NOT EXISTS files (fileid, filename, extension, content_type, md5, uploader, uploaded)")
+    con.execute("CREATE TABLE IF NOT EXISTS files (fileid, filename, extension, content_type, md5, uploader, timestamp_date_time_original, uploaded)")
 
   ## Check DB version
   with sqlite3.connect(config.DB_STRING) as con:

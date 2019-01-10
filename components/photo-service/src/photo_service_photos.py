@@ -16,6 +16,7 @@ import uuid
 import json
 import logging
 import io
+import time
 
 import cherrypy
 import sqlite3
@@ -29,6 +30,8 @@ import common
 class PhotoServicePhotos(object):
 
   def receive_new_photo(self, file):
+    img_uuid = str(uuid.uuid4())
+    # ------- Read data -------
     size = 0
     whole_data = bytearray()
     filehash = hashlib.md5()
@@ -42,36 +45,48 @@ class PhotoServicePhotos(object):
         break
       size += len(data)
 
-    img_uuid = str(uuid.uuid4())
-    fn, filext = os.path.splitext(file.filename)
-    res = {"fileid": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "uploaded": str(datetime.utcnow())}
-    return res, whole_data
-
-  def rotate_and_store(self, info, data):
-    # Rotate image based on exif orientation
+    # ------- Read exif and correct orientation -------
     try:
-      image=Image.open(io.BytesIO(data))
-      for orientation in ExifTags.TAGS.keys():
-        if ExifTags.TAGS[orientation]=='Orientation':
-          break
+      image=Image.open(io.BytesIO(whole_data))
+      orientation_key = None
+      date_time_original_key = None
+      for key in ExifTags.TAGS.keys():
+        if ExifTags.TAGS[key] == "Orientation":
+          orientation_key = key
+        if ExifTags.TAGS[key] == "DateTimeOriginal":
+          date_time_original_key = key
+
       exif=dict(image._getexif().items())
 
-      if exif[orientation] == 3:
+      # Do rotation
+      if exif[orientation_key] == 3:
         image=image.rotate(180, expand=True)
-      elif exif[orientation] == 6:
+      elif exif[orientation_key] == 6:
         image=image.rotate(270, expand=True)
-      elif exif[orientation] == 8:
+      elif exif[orientation_key] == 8:
         image=image.rotate(90, expand=True)
+
+      # Get DateTimeOriginal
+      if date_time_original_key == None:
+        # Image has no DateTimeOriginal set
+        date_time_original_ts = 0.0
+      else:
+        date_time_original_ts = time.mktime(datetime.strptime(exif[date_time_original_key], "%Y:%m:%d %H:%M:%S").timetuple())
 
     except (AttributeError, KeyError, IndexError):
       # cases: image don't have getexif
+      logging.warn("Image does not have EXIF:", img_uuid)
+      date_time_original_ts = 0.0
       pass
+
+    fn, filext = os.path.splitext(file.filename)
+    info = {"fileid": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "timestamp_date_time_original": date_time_original_ts, "uploaded": str(datetime.utcnow())}
 
     image.save(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']))
     image.close()
 
     with open(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']), "rb") as the_file:
-      return the_file.read()
+      return info, the_file.read()
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
@@ -124,19 +139,17 @@ class PhotoServicePhotos(object):
 
   @cherrypy.tools.json_out()
   def POST(self, file, albumid):
-    ## Receive file
+    ## Receive file, rotate, get exif information, and store
     info, data = self.receive_new_photo(file)
-
-    ## Rotate image if necessary, and write to storage
-    rotated_data = self.rotate_and_store(info, data)
+    print(info)
 
     ## Save photo in DB
     with sqlite3.connect(config.DB_STRING) as c:
-      c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [info['fileid'], info['filename'], info['extension'], info['content_type'], info['md5'], info['uploader'], info['uploaded']])
+      c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [info['fileid'], info['filename'], info['extension'], info['content_type'], info['md5'], info['uploader'], info['timestamp_date_time_original'], info['uploaded']])
 
     ## Create task to create thumbnails
-    common.myRedis.set(info['fileid'], bytes(rotated_data)) # Save data to redis, key: uuid
+    common.myRedis.set(info['fileid'], bytes(data)) # Save data to redis, key: uuid
     taskitem = {"fileid": info['fileid'], "extension": info['extension']}
     common.myRedis.lpush("create-thumbnail", json.dumps(taskitem)) # Add task to list
 
