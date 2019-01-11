@@ -65,7 +65,10 @@ class PhotoServicePhotos(object):
         image=image.rotate(270, expand=True)
       elif exif[orientation_key] == 8:
         image=image.rotate(90, expand=True)
+    except (AttributeError, KeyError, IndexError) as e:
+      pass
 
+    try:
       # Get DateTimeOriginal
       if date_time_original_key == None:
         # Image has no DateTimeOriginal set
@@ -73,7 +76,7 @@ class PhotoServicePhotos(object):
       else:
         date_time_original_ts = time.mktime(datetime.strptime(exif[date_time_original_key], "%Y:%m:%d %H:%M:%S").timetuple())
 
-    except (AttributeError, KeyError, IndexError):
+    except (AttributeError, KeyError, IndexError) as e:
       # cases: image don't have getexif
       logging.warn("Image does not have EXIF:", img_uuid)
       date_time_original_ts = 0.0
