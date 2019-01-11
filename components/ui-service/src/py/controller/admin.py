@@ -79,7 +79,7 @@ class AdminController(BaseController):
       "id": albuminfo['albumid'],
       "name": albuminfo['name'],
       "access_code": albuminfo['accesscode'],
-      "created": albuminfo['created'].split('.')[0],
+      "created": time.strftime("%d %b %Y %H:%M:%S", time.gmtime(albuminfo["timestamp_created"])),
       "amount_files": len(albuminfo['files']),
       "amount_subscriptions": len(albuminfo['subscriptions']),
       "edit_files_url": "/admin/album/%s/files" % albuminfo['accesscode'],
@@ -100,7 +100,46 @@ class AdminController(BaseController):
     "name": "SWG - Administration",
     "href": "/admin"
     }
-    # TODO
+
+    # args[1] should be the 8-digit-access-code
+    if len(args) == 0 or not common.isValidAccessCode(args[1]):
+      return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    # Resolve access code to id. Returns {} if no album with this code exists
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[1])
+    if r.json() == {}:
+      return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    albummeta = r.json()
+
+    # Get album information
+    r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
+    albuminfo = r.json()
+
+    if len(albuminfo['files']) > 0:
+      # Get file information
+      r = requests.get("http://photo-service:8080/photo-service/photos", params={"files": albuminfo['files']})
+      files = r.json()
+
+      photos = []
+      for file in files:
+        fileinfo = file
+        fileinfo['thumb_url'] = "/thumbnail-service/thumbnails/%s" % file['fileid']
+        fileinfo['file_url'] = "/photo-service/rawcontent/%s" % file['fileid']
+        fileinfo['delete_url'] = "/album-service/albums/%s/photos/%s" % (albummeta['albumid'],file['fileid'])
+        photos.append(fileinfo)
+      if photos is not []:
+        template_vars["photos"] = photos
+        # Prune dateUploaded
+        for item in template_vars["photos"]:
+          item["uploaded"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_uploaded"]))
+          if item["timestamp_date_time_original"] != 0:
+            item["taken"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_date_time_original"]))
+          else:
+            item["taken"] = "Date unknown"
+
+    template_vars['album_index_url'] = "/admin/album/%s" % args[0]
+
     return self.render_template("admin/album_files.html", template_vars)
 
   '''

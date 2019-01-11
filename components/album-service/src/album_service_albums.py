@@ -64,6 +64,45 @@ class AlbumServiceAlbums(object):
       c.execute("INSERT INTO albums VALUES (?, ?, ?, ?, ?)",
         [info['albumid'], info['name'], info['accesscode'], info['creator'], info['timestamp_created']])
 
+  def deleteCompleteAlbum(self, albumid):
+    # Place task to delete files and thumbs from this album
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT fileid FROM album_files WHERE albumid=?", (albumid,))
+      res = common.DBtoList(r)
+      fileids = [item['fileid'] for item in res]
+      common.myRedis.lpush("delete-files", json.dumps(fileids)) # Add task to list
+
+    # Place task to delete subscriptions for this album
+    with sqlite3.connect(config.DB_STRING) as c:
+      r = c.execute("SELECT subscriptionid FROM album_subscriptions WHERE albumid=?", (albumid,))
+      res = common.DBtoList(r)
+      subscriptionids = [item['subscriptionid'] for item in res]
+      common.myRedis.lpush("delete-subscriptions", json.dumps(subscriptionids)) # Add task to list
+
+    # Delete from album_subscriptions
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM album_subscriptions WHERE albumid=?", (str(albumid),))
+    # Delete from album_files
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM album_files WHERE albumid=?", (str(albumid),))
+    # Delete from albums
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM albums WHERE albumid=?", (str(albumid),))
+
+    return {"message": "Album deleted", "error": "OK"}
+
+  def deletePhotoFromAlbum(self, albumid, itemid):
+    # Place task to delete file
+    common.myRedis.lpush("delete-files", json.dumps([itemid])) # Add task to list
+
+    # Delete file from album_files
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM album_files WHERE albumid=? AND fileid=?", (str(albumid),str(itemid)))
+    return {"message": "File %s deleted from album %s" % (itemid, albumid), "error": "OK"}
+
+  def deleteSubscriptionFromAlbum(self, albumid, itemid):
+    return
+
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
   def GET(self, albumid=None):
@@ -110,7 +149,7 @@ class AlbumServiceAlbums(object):
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
-  def DELETE(self, albumid=None):
+  def DELETE(self, albumid=None, subitem=None, itemid=None):
     if albumid == None:
       return {"error": "No UUID given"}
 
@@ -118,33 +157,23 @@ class AlbumServiceAlbums(object):
     try:
       uuid.UUID(albumid, version=4)
     except ValueError:
-      return {"error": "Not a valid UUID"}
+      return {"error": "Album UUID not valid"}
 
-    # Place task to delete files and thumbs from this album
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT fileid FROM album_files WHERE albumid=?", (albumid,))
-      res = common.DBtoList(r)
-      fileids = [item['fileid'] for item in res]
-      common.myRedis.lpush("delete-files", json.dumps(fileids)) # Add task to list
+    if itemid != None:
+      try:
+        uuid.UUID(itemid, version=4)
+      except ValueError:
+        return {"error": "Item UUID not valid"}
 
-    # Place task to delete subscriptions for this album
-    with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT subscriptionid FROM album_subscriptions WHERE albumid=?", (albumid,))
-      res = common.DBtoList(r)
-      subscriptionids = [item['subscriptionid'] for item in res]
-      common.myRedis.lpush("delete-subscriptions", json.dumps(subscriptionids)) # Add task to list
-
-    # Delete from album_subscriptions
-    with sqlite3.connect(config.DB_STRING) as c:
-      c.execute("DELETE FROM album_subscriptions WHERE albumid=?", (str(albumid),))
-    # Delete from album_files
-    with sqlite3.connect(config.DB_STRING) as c:
-      c.execute("DELETE FROM album_files WHERE albumid=?", (str(albumid),))
-    # Delete from albums
-    with sqlite3.connect(config.DB_STRING) as c:
-      c.execute("DELETE FROM albums WHERE albumid=?", (str(albumid),))
-
-    return {"message": "Album deleted", "error": "OK"}
+    if subitem == None:
+      # We should delete the complete album
+      return self.deleteCompleteAlbum(albumid)
+    elif subitem == "photos":
+      # We should delete certain photos from the album
+      return self.deletePhotoFromAlbum(albumid, itemid)
+    elif subitem == "subscriptions":
+      # We should delete certain subscriptions from the album
+      return self.deleteSubscriptionFromAlbum(albumid, itemid)
 
   def OPTIONS(self):
     return None

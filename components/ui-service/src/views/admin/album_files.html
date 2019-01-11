@@ -5,7 +5,7 @@
     <div class="container">
       <h1 class="jumbotron-heading">Fotos</h1>
       <p class="lead text-muted">Hier siehst du eine Übersicht aller bisher hochgeladenen Fotos.<br/> Viel Spaß beim Stöbern ;)</p>
-      <button class="btn btn-outline-primary" onclick="deleteData('/photo/all')">Lösche alle Bilder</button>
+      <button class="btn btn-outline-primary" onclick="deleteData('{{ delete_all_url }}')">Delete all files</button>
     </div>
   </section>
 
@@ -17,14 +17,17 @@
         {% for photo in photos %}
         <div class="col-md-4">
           <div class="card mb-4 shadow-sm">
-            <a href="{{ photo.photourl }}"><img class="img-thumbnail" src="{{ photo.thumburl }}" alt="Thumbnail"></a>
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-center">
-                <div class="btn-group">
-                  <a type="button" class="btn btn-sm btn-outline-secondary" href="#" onclick="deleteData('{{ photo.photourl }}')">Delete</a>
-                </div>
-                <small class="text-muted">Hochgeladen am:<br/>{{ photo.dateUploaded }}</small>
-                <small class="text-muted">Von:<br/>{{ photo.uploader }}</small>
+                <small class="text-muted">Taken on:<br/>{{ photo.taken }}</small>
+                <small class="text-muted">Uploaded on:<br/>{{ photo.uploaded }}</small>
+                <small class="text-muted">Uploader:<br/>{{ photo.uploader }}</small>
+              </div>
+            </div>
+            <a href="{{ photo.photo_url }}"><img class="img-thumbnail" src="{{ photo.thumb_url }}" alt="Thumbnail"></a>
+            <div class="card-body">
+              <div class="btn-group">
+                <a type="button" class="btn btn-sm btn-outline-danger" href="#" onclick="deleteData('{{ photo.delete_url }}')">Delete</a>
               </div>
             </div>
           </div>
