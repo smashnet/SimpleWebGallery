@@ -27,11 +27,11 @@
         <tbody>
           {% for sub in subscriptions %}
           <tr>
-            <td>{{ sub.uuid }}</td>
+            <td>{{ sub.id }}</td>
             <td>{{ sub.mail }}</td>
             <td>{{ sub.ip }}</td>
-            <td>{{ sub.dateSubscribed }}</td>
-            <td><a type="button" class="btn btn-sm btn-outline-secondary" href="#" onclick="deleteData('{{ sub.url }}')">Delete</a></td>
+            <td>{{ sub.date_subscribed }}</td>
+            <td><a type="button" class="btn btn-sm btn-outline-danger" href="#" onclick="deleteData('{{ sub.delete_url }}')">Delete</a></td>
           </tr>
           {% endfor %}
         </tbody>

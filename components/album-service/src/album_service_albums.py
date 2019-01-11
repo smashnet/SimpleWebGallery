@@ -101,7 +101,13 @@ class AlbumServiceAlbums(object):
     return {"message": "File %s deleted from album %s" % (itemid, albumid), "error": "OK"}
 
   def deleteSubscriptionFromAlbum(self, albumid, itemid):
-    return
+    # Place task to delete subscription
+    common.myRedis.lpush("delete-subscriptions", json.dumps([itemid])) # Add task to list
+
+    # Delete file from album_files
+    with sqlite3.connect(config.DB_STRING) as c:
+      c.execute("DELETE FROM album_subscriptions WHERE albumid=? AND subscriptionid=?", (str(albumid),str(itemid)))
+    return {"message": "Subscription %s deleted from album %s" % (itemid, albumid), "error": "OK"}
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()

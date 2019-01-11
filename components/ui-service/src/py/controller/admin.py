@@ -153,5 +153,32 @@ class AdminController(BaseController):
     "name": "SWG - Administration",
     "href": "/admin"
     }
-    # TODO
+
+    # args[1] should be the 8-digit-access-code
+    if len(args) == 0 or not common.isValidAccessCode(args[1]):
+      return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    # Resolve access code to id. Returns {} if no album with this code exists
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[1])
+    if r.json() == {}:
+      return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    albummeta = r.json()
+
+    # Get album information
+    r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
+    albuminfo = r.json()
+
+    if len(albuminfo['subscriptions']) > 0:
+      # Get file information
+      r = requests.get("http://subscription-service:8080/subscription-service/subscriptions", params={"subscriptions": albuminfo['subscriptions']})
+      subscriptions = r.json()
+
+      for sub in subscriptions:
+        sub['delete_url'] = "/album-service/albums/%s/subscriptions/%s" % (albummeta['albumid'],sub['id'])
+
+      template_vars['subscriptions'] = subscriptions
+
+    template_vars['album_index_url'] = "/admin/album/%s" % args[0]
+
     return self.render_template("admin/album_subscriptions.html", template_vars)

@@ -56,19 +56,52 @@ class SubscriptionServiceSubscriptions(object):
         return {"error": "UUID unknown"}
 
   @cherrypy.tools.json_out()
-  def GET(self, subscriberuuid=None):
+  def GET(self, subscriptionid=None, subscriptions=None):
     # If no parameter is provided -> error
-    if subscriberuuid is None:
+    if subscriptionid is None and subscriptions is None:
       return {"error": "No UUID"}
 
     # Check if is valid uuid
-    try:
-      uuid.UUID(subscriberuuid, version=4)
-    except ValueError:
-      return {"error": "Not a UUID"}
+    if subscriptions is not None:
+      # Sadly, we have to consider files being a single UUID, and not a list of uuids
+      # so we have to check and handle this here
+      if isinstance(subscriptions, str):
+        # We have a single UUID
+        try:
+          uuid.UUID(subscriptions, version=4)
+        except ValueError:
+          logging.warn("At least one item in JSON content is not a UUID")
+          return {"error": "At least one item in JSON content is not a UUID"}
 
-    # Return single subscriber information
-    return self.getSingleSubscriber(subscriberuuid)
+        theSingleUUID = subscriptions
+        subscriptions = []
+        subscriptions.append(theSingleUUID)
+      else:
+        # Check all uuids
+        for id in subscriptions:
+          try:
+            uuid.UUID(id, version=4)
+          except ValueError:
+            logging.warn("At least one item in JSON content is not a UUID")
+            return {"error": "At least one item in JSON content is not a UUID"}
+
+      # Return subscription information for given subscriptionids
+      with sqlite3.connect(config.DB_STRING) as c:
+        r = c.execute("SELECT * FROM subscriptions WHERE id IN (%s)" % ','.join('"%s"'%x for x in subscriptions))
+        res = common.DBtoList(r)
+        return res
+    else:
+      try:
+        uuid.UUID(subscriptionid, version=4)
+      except ValueError:
+        logging.warn("Not a valid UUID")
+        return {"error": "Not a valid uuid"}
+
+      # Return file information for single file
+      with sqlite3.connect(config.DB_STRING) as c:
+        r = c.execute("SELECT * FROM subscriptions WHERE id=?", (str(subscriptionid),))
+        res = common.DBtoDict(r)
+        return res
 
   @cherrypy.tools.json_out()
   def POST(self, mailaddress, albumid):
