@@ -13,6 +13,7 @@ License: MIT License
 import cherrypy
 import requests
 import json
+import time
 
 import common
 import config
@@ -104,7 +105,8 @@ class AlbumController(BaseController):
         template_vars["photos"] = photos
         # Prune dateUploaded
         for item in template_vars["photos"]:
-          item["uploaded"] = item["uploaded"].split('.')[0]
+          item["uploaded"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_uploaded"]))
+          item["taken"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_date_time_original"]))
 
     # check if fullscreen
     if len(args) > 2 and args[2] == "fullscreen":

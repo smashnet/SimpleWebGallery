@@ -66,6 +66,8 @@ class PhotoServicePhotos(object):
       elif exif[orientation_key] == 8:
         image=image.rotate(90, expand=True)
     except (AttributeError, KeyError, IndexError) as e:
+      # No orientation in exif
+      logging.info("No orientation in EXIF data", img_uuid)
       pass
 
     try:
@@ -83,7 +85,7 @@ class PhotoServicePhotos(object):
       pass
 
     fn, filext = os.path.splitext(file.filename)
-    info = {"fileid": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "timestamp_date_time_original": date_time_original_ts, "uploaded": str(datetime.utcnow())}
+    info = {"fileid": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "timestamp_date_time_original": date_time_original_ts, "timestamp_uploaded": int(time.time())}
 
     image.save(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']))
     image.close()
@@ -124,7 +126,7 @@ class PhotoServicePhotos(object):
 
       # Return file information for all files
       with sqlite3.connect(config.DB_STRING) as c:
-        r = c.execute("SELECT * FROM files WHERE fileid IN (%s)" % ','.join('"%s"'%x for x in files))
+        r = c.execute("SELECT * FROM files WHERE fileid IN (%s) ORDER BY timestamp_date_time_original ASC" % ','.join('"%s"'%x for x in files))
         res = common.DBtoList(r)
         return res
     else:
@@ -144,12 +146,12 @@ class PhotoServicePhotos(object):
   def POST(self, file, albumid):
     ## Receive file, rotate, get exif information, and store
     info, data = self.receive_new_photo(file)
-    print(info)
+    logging.info(info)
 
     ## Save photo in DB
     with sqlite3.connect(config.DB_STRING) as c:
       c.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [info['fileid'], info['filename'], info['extension'], info['content_type'], info['md5'], info['uploader'], info['timestamp_date_time_original'], info['uploaded']])
+        [info['fileid'], info['filename'], info['extension'], info['content_type'], info['md5'], info['uploader'], info['timestamp_date_time_original'], info['timestamp_uploaded']])
 
     ## Create task to create thumbnails
     common.myRedis.set(info['fileid'], bytes(data)) # Save data to redis, key: uuid
