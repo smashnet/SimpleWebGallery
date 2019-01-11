@@ -18,7 +18,6 @@ import sqlite3
 
 import common
 import config
-import message_handlers
 
 from album_service_root import AlbumServiceRoot
 from album_service_albums import AlbumServiceAlbums
@@ -48,7 +47,7 @@ def init_service():
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
-    con.execute("CREATE TABLE IF NOT EXISTS albums (albumid, name, accesscode, creator, created)")
+    con.execute("CREATE TABLE IF NOT EXISTS albums (albumid, name, accesscode, creator, timestamp_created timestamp)")
     con.execute("CREATE TABLE IF NOT EXISTS album_files (albumid, fileid)")
     con.execute("CREATE TABLE IF NOT EXISTS album_subscriptions (albumid, subscriptionid)")
 

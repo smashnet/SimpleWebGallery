@@ -12,6 +12,7 @@ License: MIT License
 
 import cherrypy
 import requests
+import time
 
 import common
 from controller.base import BaseController
@@ -41,6 +42,7 @@ class AdminController(BaseController):
         album['view_url'] = "/album/%s" % album['accesscode']
         album['edit_url'] = "/admin/album/%s" % album['accesscode']
         album['delete_url'] = "/album-service/albums/%s" % album['albumid']
+        album['timestamp_created'] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(album["timestamp_created"]))
       template_vars["albums"] = albums
     return self.render_template("admin/index.html", template_vars)
 

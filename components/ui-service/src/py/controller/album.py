@@ -44,7 +44,7 @@ class AlbumController(BaseController):
     template_vars['album_id'] = albuminfo['albumid']
     template_vars['album_name'] = albuminfo['name']
     template_vars['album_accesscode'] = albuminfo['accesscode']
-    template_vars['album_created'] = albuminfo['created'].split('.')[0]
+    template_vars['album_created'] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(albuminfo["timestamp_created"]))
     template_vars['album_amount_photos'] = len(albuminfo['files'])
     template_vars['album_amount_subscriptions'] = len(albuminfo['subscriptions'])
 
@@ -106,7 +106,10 @@ class AlbumController(BaseController):
         # Prune dateUploaded
         for item in template_vars["photos"]:
           item["uploaded"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_uploaded"]))
-          item["taken"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_date_time_original"]))
+          if item["timestamp_date_time_original"] != 0:
+            item["taken"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_date_time_original"]))
+          else:
+            item["taken"] = "Date unknown"
 
     # check if fullscreen
     if len(args) > 2 and args[2] == "fullscreen":

@@ -12,6 +12,7 @@ License: MIT License
 
 import os, os.path
 from datetime import datetime
+import time
 import uuid
 import random
 import string
@@ -29,7 +30,7 @@ class AlbumServiceAlbums(object):
 
   def getAlbumInformation(self, uuid):
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT albumid, name, accesscode, creator, created FROM albums WHERE albumid=?", (uuid,))
+      r = c.execute("SELECT albumid, name, accesscode, creator, timestamp_created FROM albums WHERE albumid=?", (uuid,))
       res = common.DBtoDict(r)
       if res == {}:
         # Album does not exist
@@ -52,7 +53,7 @@ class AlbumServiceAlbums(object):
 
   def getListOfAllAlbums(self):
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT albumid, name, accesscode, creator, created FROM albums")
+      r = c.execute("SELECT albumid, name, accesscode, creator, timestamp_created FROM albums")
       res = common.DBtoList(r)
       if len(res) == 0:
         return None
@@ -60,9 +61,8 @@ class AlbumServiceAlbums(object):
 
   def saveNewAlbum(self, info):
     with sqlite3.connect(config.DB_STRING) as c:
-      # TODO:
       c.execute("INSERT INTO albums VALUES (?, ?, ?, ?, ?)",
-        [info['albumid'], info['name'], info['accesscode'], info['creator'], info['created']])
+        [info['albumid'], info['name'], info['accesscode'], info['creator'], info['timestamp_created']])
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()
@@ -94,7 +94,7 @@ class AlbumServiceAlbums(object):
       "name": input_json['albumname'],
       "accesscode": ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)),
       "creator": cherrypy.request.remote.ip,
-      "created": str(datetime.utcnow())
+      "timestamp_created": int(time.time())
     }
 
     # Save new album in DB
