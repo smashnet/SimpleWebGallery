@@ -87,6 +87,14 @@ class AdminController(BaseController):
       "delete_album_url": "/album-service/albums/%s" % albummeta['albumid']
     }
 
+    # Set nav items
+    template_vars["navlinks"] = [
+    {
+      "name": "Back",
+      "href": "/admin/"
+    }
+    ]
+
     return self.render_template("admin/album_index.html", template_vars)
 
   '''
@@ -138,7 +146,13 @@ class AdminController(BaseController):
           else:
             item["taken"] = "Date unknown"
 
-    template_vars['album_index_url'] = "/admin/album/%s" % args[0]
+    # Set nav items
+    template_vars["navlinks"] = [
+    {
+      "name": "Back",
+      "href": "/admin/album/%s" % args[1]
+    }
+    ]
 
     return self.render_template("admin/album_files.html", template_vars)
 
@@ -179,6 +193,12 @@ class AdminController(BaseController):
 
       template_vars['subscriptions'] = subscriptions
 
-    template_vars['album_index_url'] = "/admin/album/%s" % args[0]
+    # Set nav items
+    template_vars["navlinks"] = [
+    {
+      "name": "Back",
+      "href": "/admin/album/%s" % args[1]
+    }
+    ]
 
     return self.render_template("admin/album_subscriptions.html", template_vars)
