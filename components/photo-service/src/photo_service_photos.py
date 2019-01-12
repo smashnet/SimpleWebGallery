@@ -29,6 +29,10 @@ import common
 @cherrypy.expose
 class PhotoServicePhotos(object):
 
+  def __extractExif(self, image):
+    image_tags = image._getexif()
+    return {name: image_tags[id] for id, name in ExifTags.TAGS.items() if id in image_tags}
+
   def receive_new_photo(self, file):
     img_uuid = str(uuid.uuid4())
     # ------- Read data -------
@@ -45,50 +49,36 @@ class PhotoServicePhotos(object):
         break
       size += len(data)
 
+    image = Image.open(io.BytesIO(whole_data))
+
     # ------- Read exif and correct orientation -------
+    exif = self.__extractExif(image)
     try:
-      image=Image.open(io.BytesIO(whole_data))
-      orientation_key = None
-      date_time_original_key = None
-      for key in ExifTags.TAGS.keys():
-        if ExifTags.TAGS[key] == "Orientation":
-          orientation_key = key
-        if ExifTags.TAGS[key] == "DateTimeOriginal":
-          date_time_original_key = key
-
-      exif=dict(image._getexif().items())
-
       # Do rotation
-      if exif[orientation_key] == 3:
+      if exif['Orientation'] == 3:
         image=image.rotate(180, expand=True)
-      elif exif[orientation_key] == 6:
+      elif exif['Orientation'] == 6:
         image=image.rotate(270, expand=True)
-      elif exif[orientation_key] == 8:
+      elif exif['Orientation'] == 8:
         image=image.rotate(90, expand=True)
     except (AttributeError, KeyError, IndexError) as e:
       # No orientation in exif
-      logging.info("No orientation in EXIF data", img_uuid)
+      logging.warn("No Orientation in EXIF data. File ID: %s, Error: %s" % (img_uuid, str(e)))
       pass
 
     try:
       # Get DateTimeOriginal
-      if date_time_original_key == None:
-        # Image has no DateTimeOriginal set
-        date_time_original_ts = 0.0
-      else:
-        date_time_original_ts = time.mktime(datetime.strptime(exif[date_time_original_key], "%Y:%m:%d %H:%M:%S").timetuple())
-
+      date_time_original_ts = time.mktime(datetime.strptime(exif['DateTimeOriginal'], "%Y:%m:%d %H:%M:%S").timetuple())
     except (AttributeError, KeyError, IndexError) as e:
-      # cases: image don't have getexif
-      logging.warn("Image does not have EXIF:", img_uuid)
+      # No DateTimeOriginal in exif data
+      logging.warn("No DateTimeOriginal in EXIF data. File ID: %s, Error: %s" % (img_uuid, str(e)))
       date_time_original_ts = 0.0
       pass
 
     fn, filext = os.path.splitext(file.filename)
     info = {"fileid": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "timestamp_date_time_original": date_time_original_ts, "timestamp_uploaded": int(time.time())}
 
-    image.save(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']))
-    image.close()
+    image.save(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']), quality=90)
 
     with open(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']), "rb") as the_file:
       return info, the_file.read()
