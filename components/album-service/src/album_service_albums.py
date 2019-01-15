@@ -108,9 +108,7 @@ class AlbumServiceAlbums(object):
       fileids = [item['fileid'] for item in res]
       # Delete files from album
       query = "DELETE FROM album_files WHERE albumid=\"%s\" AND fileid IN (%s)" % (albumid ,','.join('"%s"'%x for x in fileids))
-      print(query)
       r = c.execute(query)
-      print(r)
 
       # Place task to delete files system wide
       common.myRedis.lpush("delete-files", json.dumps(fileids)) # Add task to list
