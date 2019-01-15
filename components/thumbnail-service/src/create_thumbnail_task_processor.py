@@ -68,4 +68,4 @@ class CreateThumbnailTaskProcessor(threading.Thread):
       fn, filext = meta['fileid'], meta['extension']
       thumb = image.copy()
       thumb.thumbnail(mysize)
-      thumb.save(config.THUMB_DIR + "/%s_%s%s" %(fn, str(size), filext))
+      thumb.save(config.THUMB_DIR + "/%s_%s%s" %(fn, str(size), filext), quality=90, optimize=True)
