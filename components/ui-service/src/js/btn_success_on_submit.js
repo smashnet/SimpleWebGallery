@@ -3,5 +3,5 @@ export function btnSuccessOnSubmit() {
   button.classList.remove('btn-primary');
   button.classList.add('btn-success');
   button.setAttribute('disabled', '');
-  button.innerHTML = 'Erledigt!';
+  button.innerHTML = 'Done!';
 };

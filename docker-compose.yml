@@ -53,6 +53,8 @@ services:
   ui-service:
     build: ./components/ui-service
     restart: always
+    environment:
+      - SWGURL=macfly.intern
     networks:
       - swg-net
 

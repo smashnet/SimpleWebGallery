@@ -138,6 +138,7 @@ class SubscriptionServiceSubscriptions(object):
 
       return info
     else:
+      logging.warn("Mail address %s is already subscriber in album %s" % (info['mail'], albumid))
       return {"error": "You already subscribed!"}
 
   @cherrypy.tools.json_out()

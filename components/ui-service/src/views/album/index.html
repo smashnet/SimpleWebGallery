@@ -3,17 +3,21 @@
 {% block content %}
       <section class="jumbotron text-center">
         <div class="container">
-          <h2 class="jumbotron-heading">Album: {{ album_name }}</h2>
+          <h2 class="jumbotron-heading">{{ album_name }}</h2>
+          <hr />
+          <div class="row">
+            <div class="col">Access code: <b>{{ album_accesscode }}</b></div>
+            <div class="col float-right">Date created: <b>{{ album_created }}</b></div>
+          </div>
           <p class="text-center">
-            Access code: {{ album_accesscode }}<br/>
             <a class="btn btn-primary my-2" href="mailto:?subject={{ share_link_subject }}&body={{ share_link_body }}">Share via mail <span class="fas fa-share-square"></span></a>
           </p>
-          <p class="lead text-center">Ihr wollt eure frisch geschossenen Fotos direkt hier auf dem Bildschirm sehen?<br/> Dann ladet sie direkt hier hoch! Es ist auch ganz einfach ;)</p>
+          <p class="lead text-center">Welcome to your album "{{ album_name }}". It's great to have you here! <br>You can upload your photos right below:</p>
           <div id="dropzone">
             <form action="{{ photo_upload_url }}" id="partyUpload" class="dropzone needsclick">
               {% if album_id is defined %}<input type="hidden" name="albumid" value="{{ album_id }}">{% endif %}
               <div class="dz-message needsclick">
-                Fotos hochladen!
+                Upload photos
               </div>
             </form>
           </div>
@@ -22,16 +26,16 @@
       <div class="album py-5 bg-light">
         <div class="container">
           <!-- Register for photo retrieval -->
-          <p class="lead text-center">Du möchtest nach der Party alle Fotos haben?<br/> Kein Problem, einfach hier deine E-Mail-Adresse eintragen, und du bekommst bald einen Download-Link zugeschickt!</p>
+          <p class="lead text-center">Whenever this album is complete you probably wish to be informed and get a download link for all full res photos.<br>The creator of this album would love to do so, just leave your mail address below:</p>
           <hr class="my-4">
           <form action="{{ register_subscription_url }}" method="post" id="mailSendForm" target="hiddenFrame" class="hasSubmitButton">
             <div class="form-group">
               {% if album_id is defined %}<input type="hidden" name="albumid" value="{{ album_id }}">{% endif %}
-              <label for="inputEmail">E-Mail-Adresse</label>
-              <input type="email" class="form-control" id="inputEmail" name="mailaddress" aria-describedby="emailHelp" placeholder="Gebe hier deine E-Mail-Adresse ein">
-              <small id="emailHelp" class="form-text text-muted">Deine E-Mail-Adresse bleibt natürlich unter uns. Ich benutze sie nur um dir den Download-Link zuzuschicken.</small>
+              <label for="inputEmail">E-mail address</label>
+              <input type="email" class="form-control" id="inputEmail" name="mailaddress" aria-describedby="emailHelp" placeholder="Your e-mail address">
+              <small id="emailHelp" class="form-text text-muted">Your e-mail address is not shared with any third party. We just store it for the album creator enabling her to send you the download link.</small>
             </div>
-            <button type="submit" class="btn btn-primary" id="submitButton">Abschicken</button><br />
+            <button type="submit" class="btn btn-primary" id="submitButton">Submit</button><br />
           </form>
           <iframe name="hiddenFrame" class="hide"></iframe>
         </div>
