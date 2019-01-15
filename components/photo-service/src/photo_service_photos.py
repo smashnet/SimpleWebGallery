@@ -76,7 +76,16 @@ class PhotoServicePhotos(object):
       pass
 
     fn, filext = os.path.splitext(file.filename)
-    info = {"fileid": img_uuid, "filename": fn, "extension": filext, "content_type": str(file.content_type), "md5": filehash.hexdigest(), "uploader": cherrypy.request.remote.ip, "timestamp_date_time_original": date_time_original_ts, "timestamp_uploaded": int(time.time())}
+    
+    info = {"fileid": img_uuid,
+            "filename": fn,
+            "extension": filext,
+            "content_type": str(file.content_type),
+            "md5": filehash.hexdigest(),
+            "uploader": cherrypy.request.remote.ip,
+            "timestamp_date_time_original": date_time_original_ts,
+            "timestamp_uploaded": int(time.time())
+            }
 
     image.save(config.PHOTO_DIR + "/%s%s" % (info['fileid'], info['extension']), quality=90, optimize=True)
 
