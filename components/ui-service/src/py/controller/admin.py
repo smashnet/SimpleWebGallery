@@ -79,6 +79,7 @@ class AdminController(BaseController):
       "id": albuminfo['albumid'],
       "name": albuminfo['name'],
       "access_code": albuminfo['accesscode'],
+      "creator": albuminfo['creator'],
       "created": time.strftime("%d %b %Y %H:%M:%S", time.gmtime(albuminfo["timestamp_created"])),
       "amount_files": len(albuminfo['files']),
       "amount_subscriptions": len(albuminfo['subscriptions']),

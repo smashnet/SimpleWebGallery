@@ -22,10 +22,11 @@
       <table class="table">
         <thead class="thead-light">
           <tr>
-            <th scope="col">UUID</th>
             <th scope="col">Name</th>
             <th scope="col">Access code</th>
             <th scope="col">Creator</th>
+            <th scope="col"># Files</th>
+            <th scope="col"># Subscriptions</th>
             <th scope="col">Date created</th>
             <th scope="col">Aktion</th>
           </tr>
@@ -34,10 +35,11 @@
         <tbody>
           {% for album in albums %}
           <tr>
-            <td>{{ album.albumid }}</td>
-            <td>{{ album.name }}</td>
+            <td><b>{{ album.name }}</b></td>
             <td>{{ album.accesscode }}</td>
             <td>{{ album.creator }}</td>
+            <td>{{ album.number_of_files }}</td>
+            <td>{{ album.number_of_subscriptions }}</td>
             <td>{{ album.timestamp_created }}</td>
             <td>
               <a type="button" class="btn btn-sm btn-outline-primary" href="{{ album.edit_url }}" onclick="">Edit</a>

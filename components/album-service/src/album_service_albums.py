@@ -53,7 +53,17 @@ class AlbumServiceAlbums(object):
 
   def getListOfAllAlbums(self):
     with sqlite3.connect(config.DB_STRING) as c:
-      r = c.execute("SELECT albumid, name, accesscode, creator, timestamp_created FROM albums")
+      r = c.execute("SELECT albums.albumid, \
+                            albums.name, \
+                            albums.accesscode, \
+                            albums.creator, \
+                            albums.timestamp_created, \
+                            COUNT(album_files.fileid) AS number_of_files, \
+                            COUNT(DISTINCT album_subscriptions.subscriptionid) AS number_of_subscriptions \
+                            FROM albums \
+                            LEFT JOIN album_files ON albums.albumid=album_files.albumid \
+                            LEFT JOIN album_subscriptions ON albums.albumid=album_subscriptions.albumid \
+                            GROUP BY albums.albumid;")
       res = common.DBtoList(r)
       if len(res) == 0:
         return None
