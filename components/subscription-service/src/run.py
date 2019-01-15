@@ -18,7 +18,6 @@ import sqlite3
 
 import common
 import config
-import message_handlers
 
 from subscription_service_root import SubscriptionServiceRoot
 from subscription_service_subscriptions import SubscriptionServiceSubscriptions
@@ -35,7 +34,7 @@ def init_service():
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
     con.execute("CREATE TABLE IF NOT EXISTS general (key, value)")
-    con.execute("CREATE TABLE IF NOT EXISTS subscriptions (id, mail, ip, date_subscribed)")
+    con.execute("CREATE TABLE IF NOT EXISTS subscriptions (id, mail, ip, timestamp_subscribed timestamp)")
 
   ## Check DB version
   with sqlite3.connect(config.DB_STRING) as con:

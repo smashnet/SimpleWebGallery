@@ -91,7 +91,7 @@ class AlbumServiceAlbums(object):
 
     return {"message": "Album deleted", "error": "OK"}
 
-  def deletePhotoFromAlbum(self, albumid, itemid):
+  def deleteFileFromAlbum(self, albumid, itemid):
     # Place task to delete file
     common.myRedis.lpush("delete-files", json.dumps([itemid])) # Add task to list
 
@@ -99,6 +99,22 @@ class AlbumServiceAlbums(object):
     with sqlite3.connect(config.DB_STRING) as c:
       c.execute("DELETE FROM album_files WHERE albumid=? AND fileid=?", (str(albumid),str(itemid)))
     return {"message": "File %s deleted from album %s" % (itemid, albumid), "error": "OK"}
+
+  def deleteAllFilesFromAlbum(self, albumid):
+    with sqlite3.connect(config.DB_STRING) as c:
+      # Get file IDs
+      r = c.execute("SELECT fileid FROM album_files WHERE albumid=?", (albumid,))
+      res = common.DBtoList(r)
+      fileids = [item['fileid'] for item in res]
+      # Delete files from album
+      query = "DELETE FROM album_files WHERE albumid=\"%s\" AND fileid IN (%s)" % (albumid ,','.join('"%s"'%x for x in fileids))
+      print(query)
+      r = c.execute(query)
+      print(r)
+
+      # Place task to delete files system wide
+      common.myRedis.lpush("delete-files", json.dumps(fileids)) # Add task to list
+    return {"message": "All files deleted from album %s" % albumid}
 
   def deleteSubscriptionFromAlbum(self, albumid, itemid):
     # Place task to delete subscription
@@ -168,16 +184,25 @@ class AlbumServiceAlbums(object):
     if itemid != None:
       try:
         uuid.UUID(itemid, version=4)
+        itemid_valid = True
       except ValueError:
+        itemid_valid = False
         return {"error": "Item UUID not valid"}
 
     if subitem == None:
+      # /album-service/albums/albumid
       # We should delete the complete album
       return self.deleteCompleteAlbum(albumid)
-    elif subitem == "photos":
-      # We should delete certain photos from the album
-      return self.deletePhotoFromAlbum(albumid, itemid)
+    elif subitem == "photos" and itemid == None:
+      # /album-service/albums/albumid/photos
+      # We should delete all files from the album
+      return self.deleteAllFilesFromAlbum(albumid)
+    elif subitem == "photos" and itemid_valid == True:
+      # /album-service/albums/albumid/photos/uuid
+      # We should delete a certain file from the album
+      return self.deleteFileFromAlbum(albumid, itemid)
     elif subitem == "subscriptions":
+      # /album-service/albums/albumid/subscriptions/uuid
       # We should delete certain subscriptions from the album
       return self.deleteSubscriptionFromAlbum(albumid, itemid)
 

@@ -18,7 +18,6 @@ import sqlite3
 
 import common
 import config
-import message_handlers
 
 from photo_service_root import PhotoServiceRoot
 from photo_service_photos import PhotoServicePhotos

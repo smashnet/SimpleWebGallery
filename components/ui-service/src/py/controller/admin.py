@@ -154,6 +154,9 @@ class AdminController(BaseController):
     }
     ]
 
+    template_vars['album_index_url'] = "/album/%s" % args[1]
+    template_vars['delete_all_url'] = "/album-service/albums/%s/photos/" % albummeta['albumid']
+
     return self.render_template("admin/album_files.html", template_vars)
 
   '''
@@ -189,6 +192,10 @@ class AdminController(BaseController):
       subscriptions = r.json()
 
       for sub in subscriptions:
+        if sub['timestamp_subscribed'] != 0:
+          sub['date_subscribed'] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(sub['timestamp_subscribed']))
+        else:
+          sub['date_subscribed'] = "Date unknown"
         sub['delete_url'] = "/album-service/albums/%s/subscriptions/%s" % (albummeta['albumid'],sub['id'])
 
       template_vars['subscriptions'] = subscriptions

@@ -16,6 +16,7 @@ import uuid
 import logging
 import re
 import json
+import time
 
 import cherrypy
 import sqlite3
@@ -117,14 +118,18 @@ class SubscriptionServiceSubscriptions(object):
       logging.warn("Album ID from POST is not a valid UUID.")
       return {"error": "Not a UUID"}
 
-    info = {"id": str(uuid.uuid4()), "mail": mailaddress, "ip": cherrypy.request.remote.ip, "date-subscribed": str(datetime.utcnow())}
+    info = {"id": str(uuid.uuid4()),
+            "mail": mailaddress,
+            "ip": cherrypy.request.remote.ip,
+            "ts-subscribed": int(time.time())
+            }
 
     # If mail not already registered
     if not self.mailExists(info['mail']):
       # Save subscription in DB
       with sqlite3.connect(config.DB_STRING) as c:
         c.execute("INSERT INTO subscriptions VALUES (?, ?, ?, ?)",
-          [info['id'], info['mail'], info['ip'], info['date-subscribed']])
+          [info['id'], info['mail'], info['ip'], info['ts-subscribed']])
       # Place task to add subscription in album service
       taskitem = {"subscription-id": info['id'], "album-id": albumid}
       common.myRedis.lpush("add-subscription-to-album", json.dumps(taskitem)) # Add task to list

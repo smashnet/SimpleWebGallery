@@ -38,7 +38,6 @@ class DeleteFilesTaskProcessor(threading.Thread):
 
       logging.info("Task found, processing...")
 
-      ## TODO
       # Delete files from storage
       with sqlite3.connect(config.DB_STRING) as c:
         for fileid in metadata:
