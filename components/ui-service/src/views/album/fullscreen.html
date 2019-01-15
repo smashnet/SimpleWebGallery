@@ -4,6 +4,7 @@
   <div class="album py-5 bg-light">
     <div class="container text-center">
     {% if photos is defined %}
+    <a type="button" class="btn btn-outline-primary" href="{{ album_index_url }}/overview">Zurück zur Übersicht</a>
     <div class="siema">
       {% for photo in photos %}
       <div><img class="img-thumbnail" src="{{ photo.thumburl }}/1024" width="100%"></div>
@@ -11,11 +12,11 @@
     </div>
     {% else %}
     <div class="img-thumbnail text-muted text-center">
-      Bisher wurden noch keine Fotos hochgeladen.<br/>Neue Fotos kannst du <a href="/">hier hochladen!</a>
+      Bisher wurden noch keine Fotos hochgeladen.<br/>Neue Fotos kannst du <a href="{{ album_index_url }}">hier hochladen!</a>
     </div>
     <hr>
-    {% endif %}
     <a type="button" class="btn btn-outline-primary" href="{{ album_index_url }}/overview">Zurück zur Übersicht</a>
+    {% endif %}
     </div>
   </div>
 {% endblock %}
@@ -27,7 +28,7 @@
       duration: 200,
       easing: 'ease-out',
       perPage: 1,
-      {% if startIndex is defined %}startIndex: {{ startIndex }},{% else %}startIndex: 0,{% endif %}
+      {% if start_index is defined %}startIndex: {{ start_index }},{% else %}startIndex: 0,{% endif %}
       draggable: true,
       multipleDrag: true,
       threshold: 20,
@@ -37,7 +38,7 @@
       onChange: () => {},
     });
 
-    var intervalID = setInterval(nextSlide, 6000);
+    //var intervalID = setInterval(nextSlide, 6000);
 
     document.addEventListener('keypress', (event) => {
       if(event.key == "ArrowRight"){

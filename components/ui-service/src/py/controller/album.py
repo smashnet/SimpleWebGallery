@@ -114,6 +114,8 @@ class AlbumController(BaseController):
     # check if fullscreen
     if len(args) > 2 and args[2] == "fullscreen":
       template_vars["fullscreen"] = True
+      if len(args) > 3:
+        template_vars['start_index'] = int(args[3])
     else:
       template_vars["fullscreen"] = False
 
