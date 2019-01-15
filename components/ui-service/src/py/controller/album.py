@@ -65,6 +65,10 @@ class AlbumController(BaseController):
     }
     ]
 
+    template_vars['album_index_url'] = "/album/%s" % args[0]
+    template_vars['share_link_subject'] = "SimpleWebGallery shared album: %s" % albuminfo['name']
+    template_vars['share_link_body'] = "Hi there,%%0D%%0A%%0D%%0Asomebody shared this great album with you: %s%%0D%%0A%%0D%%0ALink: %s%s%%0D%%0AAccess code: %s%%0D%%0A%%0D%%0ABest regards,%%0D%%0ASimpleWebGallery" % (albuminfo['name'], "http://" + config.PUBLIC_URL, template_vars['album_index_url'], args[0])
+
     return self.render_template("album/index.html", template_vars)
 
   @cherrypy.expose

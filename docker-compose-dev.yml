@@ -75,6 +75,7 @@ services:
     restart: always
     environment:
       - PYTHONUNBUFFERED=0
+      - SWGURL=macfly.intern
     volumes:
       - ./components/ui-service/:/usr/src/app/
     networks:

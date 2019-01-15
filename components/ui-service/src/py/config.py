@@ -22,3 +22,7 @@ PHOTO_DIR = DATA_DIR + "img/"
 PHOTO_THUMBS_DIR = DATA_DIR + "thumbs/"
 VIEWS_PATH = os.path.abspath(os.getcwd()) + "/src/views"
 ACCESS_CODE_CHARS = "0123456789abcdefghijklmnopqrstuvwxzy"
+try:
+  PUBLIC_URL = os.environ['SWGURL']
+except KeyError:
+  PUBLIC_URL = "localhost"
