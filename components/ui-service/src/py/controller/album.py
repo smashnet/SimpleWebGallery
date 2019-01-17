@@ -57,7 +57,7 @@ class AlbumController(BaseController):
     template_vars["navlinks"] = [
     {
       "name": "Home",
-      "href": "/"
+      "href": "/album/%s/" % args[0]
     },
     {
       "name": "Fotos",
