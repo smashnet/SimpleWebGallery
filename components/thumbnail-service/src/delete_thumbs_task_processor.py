@@ -33,7 +33,7 @@ class DeleteThumbsTaskProcessor(threading.Thread):
       task = self.myRedis.brpoplpush('delete-thumbs', 'delete-thumbs-processing')
       metadata = json.loads(task)
 
-      logging.info("Task found, processing...")
+      logging.info("DELETE-THUMBS: Task found. Deleting thumbs for files %s" % ','.join('"%s"'%x for x in metadata))
 
       # Delete thumbs from storage
       with sqlite3.connect(config.DB_STRING) as c:

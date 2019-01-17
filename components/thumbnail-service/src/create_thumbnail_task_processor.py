@@ -35,9 +35,8 @@ class CreateThumbnailTaskProcessor(threading.Thread):
 
       task = self.myRedis.brpoplpush('create-thumbnail', 'create-thumbnail-processing')
       metadata = json.loads(task)
-      logging.info(metadata)
 
-      logging.info("Task found, processing...")
+      logging.info("CREATE-THUMBNAIL: Task found. Creating thumbs for file %s" % metadata['fileid'])
 
       # Get file data from redis
       logging.info("Receiving file data from redis")
@@ -56,7 +55,7 @@ class CreateThumbnailTaskProcessor(threading.Thread):
       res = self.myRedis.delete(metadata['fileid'])
 
       ## If successful, remove task from processing list
-      logging.info("Removing task from processing list")
+      logging.info("Finished creating thumbs for file %s" % metadata['fileid'])
       res = self.myRedis.lrem('create-thumbnail-processing', 0 , task)
 
   def createThumbsAndStore(self, meta, filedata):

@@ -15,6 +15,7 @@ import os, os.path
 import cherrypy
 import redis
 import sqlite3
+import logging
 
 import common
 import config
@@ -60,7 +61,7 @@ def init_service():
     else:
       # Different versions! Please migrate!
       # TODO
-      print("Running ? v? with DB v?! Exiting...", (config.NAME, config.VERSION, res[0][0]))
+      logging.critical("Running %s v%s with DB v%s! Exiting..." % (config.NAME, config.VERSION, res[0][0]))
       sys.exit(100)
 
 def cleanup():
