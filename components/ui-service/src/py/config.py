@@ -23,6 +23,6 @@ PHOTO_THUMBS_DIR = DATA_DIR + "thumbs/"
 VIEWS_PATH = os.path.abspath(os.getcwd()) + "/src/views"
 ACCESS_CODE_CHARS = "0123456789abcdefghijklmnopqrstuvwxzy"
 try:
-  PUBLIC_URL = os.environ['SWGURL']
+  PUBLIC_URL = os.environ['VIRTUAL_HOST']
 except KeyError:
   PUBLIC_URL = "localhost"

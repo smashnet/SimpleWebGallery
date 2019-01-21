@@ -73,9 +73,9 @@ services:
       context: ./components/ui-service
       dockerfile: Dockerfile.dev
     restart: always
+    env_file: .env
     environment:
       - PYTHONUNBUFFERED=0
-      - SWGURL=macfly.intern
     volumes:
       - ./components/ui-service/:/usr/src/app/
     networks:
@@ -84,8 +84,7 @@ services:
   proxy:
     image: nginx
     restart: always
-    environment:
-      - VIRTUAL_HOST=macfly.intern
+    env_file: .env
     volumes:
       - ./swg.template:/etc/nginx/conf.d/swg.template
       - ./uploadsize.conf:/etc/nginx/conf.d/uploadsize.conf

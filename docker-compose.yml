@@ -8,7 +8,7 @@ services:
       - redis-data:/data
     networks:
       - swg-net
-    entrypoint: redis-server --appendonly yes
+    entrypoint: redis-server
 
   album-service:
     build: ./components/album-service
@@ -53,16 +53,14 @@ services:
   ui-service:
     build: ./components/ui-service
     restart: always
-    environment:
-      - SWGURL=macfly.intern
+    env_file: .env
     networks:
       - swg-net
 
   proxy:
     image: nginx
     restart: always
-    environment:
-      - VIRTUAL_HOST=macfly.intern
+    env_file: .env
     volumes:
       - ./swg.template:/etc/nginx/conf.d/swg.template
       - ./uploadsize.conf:/etc/nginx/conf.d/uploadsize.conf
