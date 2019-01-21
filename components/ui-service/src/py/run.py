@@ -27,9 +27,12 @@ def cleanup():
   return
 
 if __name__ == '__main__':
+  app = SimpleWebGallery()
+
   conf = {
       '/': {
           'tools.sessions.on': False,
+          'request.dispatch': app.getRoutesDispatcher(),
           'tools.staticdir.root': os.path.abspath(os.getcwd())
       },
       '/static': {
@@ -44,6 +47,6 @@ if __name__ == '__main__':
   cherrypy.engine.subscribe('start', init_service)
   cherrypy.engine.subscribe('stop', cleanup)
 
-  webapp = SimpleWebGallery()
-
-  cherrypy.quickstart(webapp, '/', conf)
+  cherrypy.quickstart(None, '/', conf)
+  #cherrypy.tree.mount(root=None, config=conf)
+  #cherrypy.engine.start()

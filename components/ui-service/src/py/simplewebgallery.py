@@ -22,70 +22,42 @@ from controller.pagenotfound import PageNotFoundController
 
 class SimpleWebGallery(object):
 
-  @cherrypy.expose
-  def default(self, *args, **kwargs):
-    c = PageNotFoundController()
-    return c.index()
+  def getRoutesDispatcher(self):
+    d = cherrypy.dispatch.RoutesDispatcher()
 
-  @cherrypy.expose
-  def index(self):
-    # /
-    # Home page where access code can be entered
-    c = HomeController()
-    return c.index()
+    d.connect('home_index', '/',
+              controller=HomeController(),
+              action='index',
+              conditions=dict(method=['GET']))
 
-  @cherrypy.expose
-  def album(self, *args, **kwargs):
-    c = AlbumController()
-    # /album
-    # Not valid without further parameters
-    if len(args) == 0:
-      c = PageNotFoundController()
-      return c.index()
+    d.connect('album_index', '/album/{access_code}',
+              controller=AlbumController(),
+              action='index',
+              conditions=dict(method=['GET']))
 
-    # /album/accessCode
-    # Home page of this album. Access code validity is checked in controller
-    if len(args) == 1:
-      return c.index(args)
+    d.connect('album_overview', '/album/{access_code}/overview',
+              controller=AlbumController(),
+              action='overview',
+              conditions=dict(method=['GET']))
 
-    # /album/accessCode/overview
-    # Route to get the overview of a certain album
-    if len(args) >= 2 and args[1] == "overview":
-      return c.overview(args)
+    d.connect('admin_index', '/admin',
+              controller=AdminController(),
+              action='index',
+              conditions=dict(method=['GET']))
 
-    # Everything else is not valid, so:
-    c = PageNotFoundController()
-    return c.index()
+    d.connect('admin_album_index', '/admin/album/{access_code}',
+              controller=AdminController(),
+              action='album_index',
+              conditions=dict(method=['GET']))
 
-  @cherrypy.expose
-  def admin(self, *args, **kwargs):
-    c = AdminController()
-    # /admin
-    # General admin page where albums are listed an new ones can be created
-    if len(args) == 0:
-      return c.index()
+    d.connect('admin_album_files', '/admin/album/{access_code}/files',
+              controller=AdminController(),
+              action='album_files',
+              conditions=dict(method=['GET']))
 
-    # /admin/???
-    # Is not valid as we need an access code
-    if len(args) == 1:
-      c = PageNotFoundController()
-      return c.index()
+    d.connect('admin_album_subscriptions', '/admin/album/{access_code}/subscriptions',
+              controller=AdminController(),
+              action='album_subscriptions',
+              conditions=dict(method=['GET']))
 
-    # /admin/album/???
-    # Main admin page for a certain album
-    if len(args) == 2 and args[0] == "album":
-      return c.album_index(args)
-
-    # /admin/album/code/files
-    # Files admin page for a certain album
-    if len(args) == 3 and args[0] == "album" and args[2] == "files":
-      return c.album_files(args)
-
-    # /admin/album/code/subscriptions
-    # Subscriptions admin page for a certain album
-    if len(args) == 3 and args[0] == "album" and args[2] == "subscriptions":
-      return c.album_subscriptions(args)
-
-    # Everything else is not valid, so:
-    c = PageNotFoundController()
-    return c.index()
+    return d

@@ -21,18 +21,35 @@ from controller.base import BaseController
 
 class AlbumController(BaseController):
 
+  def _prepare_template_vars_album_overview(self, files):
+    photos = []
+    for file in files:
+      fileinfo = file
+      fileinfo['thumburl'] = "/thumbnail-service/thumbnails/%s" % file['fileid']
+      fileinfo['fileurl'] = "/photo-service/rawcontent/%s" % file['fileid']
+      photos.append(fileinfo)
+    if photos is not []:
+      # Prune dateUploaded
+      for item in photos:
+        item["uploaded"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_uploaded"]))
+        if item["timestamp_date_time_original"] != 0:
+          item["taken"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_date_time_original"]))
+        else:
+          item["taken"] = "Date unknown"
+    return photos
+
   @cherrypy.expose
-  def index(self, args=None):
+  def index(self, access_code):
     template_vars = {}
     template_vars["bodyclass"] = "class=main"
     # Check args
-    # args[0] should be the 8-digit-access-code
+    # access_code should be the 8-digit-access-code
     # Check if is valid access code
-    if len(args) == 0 or not common.isValidAccessCode(args[0]):
+    if not common.isValidAccessCode(access_code):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
     # Resolve access code to id. Returns {} if no album with this code exists
-    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[0])
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % access_code)
     if r.json() == {}:
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
@@ -57,34 +74,31 @@ class AlbumController(BaseController):
     template_vars["navlinks"] = [
     {
       "name": "Home",
-      "href": "/album/%s/" % args[0]
+      "href": "/album/%s/" % access_code
     },
     {
       "name": "Fotos",
-      "href": "/album/%s/overview" % args[0]
+      "href": "/album/%s/overview" % access_code
     }
     ]
 
-    template_vars['album_index_url'] = "/album/%s" % args[0]
+    template_vars['album_index_url'] = "/album/%s" % access_code
     template_vars['share_link_subject'] = "SimpleWebGallery shared album: %s" % albuminfo['name']
-    template_vars['share_link_body'] = "Hi there,%%0D%%0A%%0D%%0Asomebody shared this great album with you: %s%%0D%%0A%%0D%%0ALink: %s%s%%0D%%0AAccess code: %s%%0D%%0A%%0D%%0ABest regards,%%0D%%0ASimpleWebGallery" % (albuminfo['name'], "http://" + config.PUBLIC_URL, template_vars['album_index_url'], args[0])
+    template_vars['share_link_body'] = "Hi there,%%0D%%0A%%0D%%0Asomebody shared this great album with you: %s%%0D%%0A%%0D%%0ALink: %s%s%%0D%%0AAccess code: %s%%0D%%0A%%0D%%0ABest regards,%%0D%%0ASimpleWebGallery" % (albuminfo['name'], "http://" + config.PUBLIC_URL, template_vars['album_index_url'], access_code)
 
     return self.render_template("album/index.html", template_vars)
 
   @cherrypy.expose
-  def overview(self, args=None):
+  def overview(self, access_code):
     template_vars = {}
     template_vars["bodyclass"] = "class=main"
-    # args[0] -> accessCode
-    # args[1] -> "overview"
-    # args[2] -> "fullscreen"
 
-    # args[0] should be the 8-digit-access-code
-    if len(args) == 0 or not common.isValidAccessCode(args[0]):
+    # access_code should be the 8-digit-access-code
+    if not common.isValidAccessCode(access_code):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
     # Resolve access code to id. Returns {} if no album with this code exists
-    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[0])
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % access_code)
     if r.json() == {}:
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
@@ -99,45 +113,20 @@ class AlbumController(BaseController):
       r = requests.get("http://photo-service:8080/photo-service/photos", params={"files": albuminfo['files']})
       files = r.json()
 
-      photos = []
-      for file in files:
-        fileinfo = file
-        fileinfo['thumburl'] = "/thumbnail-service/thumbnails/%s" % file['fileid']
-        fileinfo['fileurl'] = "/photo-service/rawcontent/%s" % file['fileid']
-        photos.append(fileinfo)
-      if photos is not []:
-        template_vars["photos"] = photos
-        # Prune dateUploaded
-        for item in template_vars["photos"]:
-          item["uploaded"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_uploaded"]))
-          if item["timestamp_date_time_original"] != 0:
-            item["taken"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_date_time_original"]))
-          else:
-            item["taken"] = "Date unknown"
+      # Prepare template_vars
+      template_vars['photos'] = self._prepare_template_vars_album_overview(files)
 
-    # check if fullscreen
-    if len(args) > 2 and args[2] == "fullscreen":
-      template_vars["fullscreen"] = True
-      if len(args) > 3:
-        template_vars['start_index'] = int(args[3])
-    else:
-      template_vars["fullscreen"] = False
-
-    # Collect photo thumburls
     template_vars["navlinks"] = [
     {
       "name": "Home",
-      "href": "/album/%s" % args[0]
+      "href": "/album/%s" % access_code
     },
     {
       "name": "Fotos",
-      "href": "/album/%s/overview" % args[0]
+      "href": "/album/%s/overview" % access_code
     }
     ]
 
-    template_vars['album_index_url'] = "/album/%s" % args[0]
+    template_vars['album_index_url'] = "/album/%s" % access_code
 
-    if template_vars["fullscreen"]:
-      return self.render_template("album/fullscreen.html", template_vars)
-    else:
-      return self.render_template("album/overview.html", template_vars)
+    return self.render_template("album/overview.html", template_vars)
