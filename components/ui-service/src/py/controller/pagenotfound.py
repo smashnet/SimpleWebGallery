@@ -17,6 +17,6 @@ from controller.base import BaseController
 class PageNotFoundController(BaseController):
 
   @cherrypy.expose
-  def index(self, template_vars=None):
+  def index(self, template_vars=None, status=None, message=None, traceback=None, version=None):
     template_vars = {"bodyclass": "class=main"}
     return self.render_template("404.html", template_vars)

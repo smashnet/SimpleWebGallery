@@ -17,6 +17,7 @@ import cherrypy
 
 import config
 from simplewebgallery import SimpleWebGallery
+from controller.pagenotfound import PageNotFoundController
 
 def init_service():
   ## Nothing todo currently
@@ -28,12 +29,14 @@ def cleanup():
 
 if __name__ == '__main__':
   app = SimpleWebGallery()
+  c = PageNotFoundController()
 
   conf = {
       '/': {
           'tools.sessions.on': False,
           'request.dispatch': app.getRoutesDispatcher(),
-          'tools.staticdir.root': os.path.abspath(os.getcwd())
+          'tools.staticdir.root': os.path.abspath(os.getcwd()),
+          'error_page.404': c.index
       },
       '/static': {
           'tools.staticdir.on': True,
@@ -48,5 +51,3 @@ if __name__ == '__main__':
   cherrypy.engine.subscribe('stop', cleanup)
 
   cherrypy.quickstart(None, '/', conf)
-  #cherrypy.tree.mount(root=None, config=conf)
-  #cherrypy.engine.start()

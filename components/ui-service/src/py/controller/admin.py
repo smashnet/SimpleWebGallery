@@ -51,21 +51,19 @@ class AdminController(BaseController):
   Admin page for a certain album
   '''
   @cherrypy.expose
-  def album_index(self, args=None):
+  def album_index(self, access_code=None):
     template_vars = {"bodyclass": "class=main"}
     template_vars["title"] = {
     "name": "SWG - Administration",
     "href": "/admin"
     }
-    # args[0] -> "album"
-    # args[1] -> accessCode
 
     # Check if is valid access code
-    if len(args) < 2 or not common.isValidAccessCode(args[1]):
+    if not common.isValidAccessCode(access_code):
       return self.render_template("admin/wrongAccessCode.html", template_vars)
 
     # Resolve access code to id. Returns {} if no album with this code exists
-    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[1])
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % access_code)
     if r.json() == {}:
       return self.render_template("admin/wrongAccessCode.html", template_vars)
 
@@ -92,7 +90,7 @@ class AdminController(BaseController):
     template_vars["navlinks"] = [
     {
       "name": "Back",
-      "href": "/admin/"
+      "href": "/admin"
     }
     ]
 
@@ -103,19 +101,19 @@ class AdminController(BaseController):
   Admin page to see and delete files for a certain album
   '''
   @cherrypy.expose
-  def album_files(self, args=None):
+  def album_files(self, access_code=None):
     template_vars = {"bodyclass": "class=main"}
     template_vars["title"] = {
     "name": "SWG - Administration",
     "href": "/admin"
     }
 
-    # args[1] should be the 8-digit-access-code
-    if len(args) == 0 or not common.isValidAccessCode(args[1]):
+    # access_code should be the 8-digit-access-code
+    if not common.isValidAccessCode(access_code):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
     # Resolve access code to id. Returns {} if no album with this code exists
-    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[1])
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % access_code)
     if r.json() == {}:
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
@@ -151,11 +149,11 @@ class AdminController(BaseController):
     template_vars["navlinks"] = [
     {
       "name": "Back",
-      "href": "/admin/album/%s" % args[1]
+      "href": "/admin/album/%s" % access_code
     }
     ]
 
-    template_vars['album_index_url'] = "/album/%s" % args[1]
+    template_vars['album_index_url'] = "/album/%s" % access_code
     template_vars['delete_all_url'] = "/album-service/albums/%s/photos/" % albummeta['albumid']
 
     return self.render_template("admin/album_files.html", template_vars)
@@ -165,19 +163,18 @@ class AdminController(BaseController):
   Admin page to see and delete subscrptions for a certain album
   '''
   @cherrypy.expose
-  def album_subscriptions(self, args=None):
+  def album_subscriptions(self, access_code=None):
     template_vars = {"bodyclass": "class=main"}
     template_vars["title"] = {
     "name": "SWG - Administration",
     "href": "/admin"
     }
 
-    # args[1] should be the 8-digit-access-code
-    if len(args) == 0 or not common.isValidAccessCode(args[1]):
+    if not common.isValidAccessCode(access_code):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
     # Resolve access code to id. Returns {} if no album with this code exists
-    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % args[1])
+    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % access_code)
     if r.json() == {}:
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
@@ -205,7 +202,7 @@ class AdminController(BaseController):
     template_vars["navlinks"] = [
     {
       "name": "Back",
-      "href": "/admin/album/%s" % args[1]
+      "href": "/admin/album/%s" % access_code
     }
     ]
 

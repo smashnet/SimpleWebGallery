@@ -30,6 +30,11 @@ class SimpleWebGallery(object):
               action='index',
               conditions=dict(method=['GET']))
 
+    d.connect('album', '/album/',
+              controller=AlbumController(),
+              action='index',
+              conditions=dict(method=['GET']))
+
     d.connect('album_index', '/album/{access_code}',
               controller=AlbumController(),
               action='index',
@@ -43,6 +48,11 @@ class SimpleWebGallery(object):
     d.connect('admin_index', '/admin',
               controller=AdminController(),
               action='index',
+              conditions=dict(method=['GET']))
+
+    d.connect('admin_album_index', '/admin/album/',
+              controller=AdminController(),
+              action='album_index',
               conditions=dict(method=['GET']))
 
     d.connect('admin_album_index', '/admin/album/{access_code}',

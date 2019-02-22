@@ -53,6 +53,7 @@ class PhotoServicePhotos(object):
 
     # ------- Read exif and correct orientation -------
     exif = self.__extractExif(image)
+    print(exif)
     try:
       # Do rotation
       if exif['Orientation'] == 3:
@@ -76,7 +77,7 @@ class PhotoServicePhotos(object):
       pass
 
     fn, filext = os.path.splitext(file.filename)
-    
+
     info = {"fileid": img_uuid,
             "filename": fn,
             "extension": filext,

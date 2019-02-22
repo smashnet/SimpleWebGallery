@@ -27,10 +27,10 @@ def DBtoList(res):
   intermediate = res.fetchall()
   return [dict(zip(descs, item)) for item in intermediate]
 
-def isValidAccessCode(accessCode):
-  if len(accessCode) != 8:
+def isValidAccessCode(access_code):
+  if access_code == None or len(access_code) != 8:
     return False
-  for char in accessCode:
+  for char in access_code:
     if char not in config.ACCESS_CODE_CHARS:
       return False
   return True

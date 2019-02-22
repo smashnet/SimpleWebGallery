@@ -39,7 +39,7 @@ class AlbumController(BaseController):
     return photos
 
   @cherrypy.expose
-  def index(self, access_code):
+  def index(self, access_code=''):
     template_vars = {}
     template_vars["bodyclass"] = "class=main"
     # Check args
