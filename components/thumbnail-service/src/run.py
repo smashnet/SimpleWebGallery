@@ -20,8 +20,8 @@ import logging
 import common
 import config
 
-from thumbnail_service_root import ThumbnailServiceRoot
-from thumbnail_service_thumbnails import ThumbnailServiceThumbnails
+from thumbnail_service_routing import ThumbnailServiceRouting
+from thumbnail_service_logic import ThumbnailServiceLogic
 from create_thumbnail_task_processor import CreateThumbnailTaskProcessor
 from delete_thumbs_task_processor import DeleteThumbsTaskProcessor
 
@@ -40,9 +40,9 @@ def init_service():
   common.taskThread.start()
 
   ## Listen on redis channel _delete-thumbs_ for new tasks
-  common.deleteThumsTaskThread = DeleteThumbsTaskProcessor()
-  common.deleteThumsTaskThread.daemon = True
-  common.deleteThumsTaskThread.start()
+  common.deleteThumbsTaskThread = DeleteThumbsTaskProcessor()
+  common.deleteThumbsTaskThread.daemon = True
+  common.deleteThumbsTaskThread.start()
 
   ## Init DB and create tables if not yet existing
   with sqlite3.connect(config.DB_STRING) as con:
@@ -66,17 +66,16 @@ def init_service():
 
 def cleanup():
   common.taskThread.join(timeout=1.0)
-  common.deleteThumsTaskThread.join(timeout=1.0)
+  common.deleteThumbsTaskThread.join(timeout=1.0)
   return
 
 if __name__ == '__main__':
+  service_routing = ThumbnailServiceRouting()
+
   conf = {
       '/': {
           'tools.sessions.on': False,
-          'tools.staticdir.root': os.path.abspath(os.getcwd())
-      },
-      '/thumbnails': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher()
+          'request.dispatch': service_routing.getRoutesDispatcher()
       }
   }
 
@@ -86,7 +85,4 @@ if __name__ == '__main__':
   cherrypy.engine.subscribe('start', init_service)
   cherrypy.engine.subscribe('stop', cleanup)
 
-  service = ThumbnailServiceRoot()
-  service.thumbnails = ThumbnailServiceThumbnails()
-
-  cherrypy.quickstart(service, '/thumbnail-service', conf)
+  cherrypy.quickstart(None, '/thumbnail-service', conf)

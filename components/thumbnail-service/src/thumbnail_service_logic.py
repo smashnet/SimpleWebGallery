@@ -1,5 +1,5 @@
 '''
-thumbnail_service_thumbnails.py
+thumbnail_service_logic.py
 
 Handles requests regarding thumbnails.
 
@@ -21,11 +21,17 @@ import hashlib
 import config
 import common
 
-@cherrypy.expose
-class ThumbnailServiceThumbnails(object):
+class ThumbnailServiceLogic(object):
 
   @cherrypy.tools.accept(media='application/json')
-  def GET(self, thumbid=None, size=config.THUMB_SIZES[1]):
+  @cherrypy.tools.json_out()
+  def index(self, *args, **kwargs):
+    return {"message": "Hello world!",
+            "service": config.NAME,
+            "version": config.VERSION}
+
+  @cherrypy.tools.accept(media='application/json')
+  def getThumbnail(self, thumbid=None, size=config.THUMB_SIZES[1]):
     # Check if uuid is None
     if thumbid == None:
       return "No thumbid given"
