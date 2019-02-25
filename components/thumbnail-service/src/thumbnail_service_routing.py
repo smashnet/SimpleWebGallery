@@ -27,12 +27,12 @@ class ThumbnailServiceRouting(object):
               action='index',
               conditions=dict(method=['GET']))
 
-    d.connect('get_thumbnail', '/thumbnails/:thumbid',
+    d.connect('get_thumbnail', '/thumbnails/{thumbid}',
               controller=ThumbnailServiceLogic(),
               action='getThumbnail',
               conditions=dict(method=['GET']))
 
-    d.connect('get_thumbnail', '/thumbnails/:thumbid/:size',
+    d.connect('get_thumbnail', '/thumbnails/{thumbid}/{size}',
               controller=ThumbnailServiceLogic(),
               action='getThumbnail',
               conditions=dict(method=['GET']))
