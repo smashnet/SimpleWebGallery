@@ -19,8 +19,8 @@ import sqlite3
 import common
 import config
 
-from subscription_service_root import SubscriptionServiceRoot
-from subscription_service_subscriptions import SubscriptionServiceSubscriptions
+from service_routing import SubscriptionServiceRouting
+from service_logic import SubscriptionServiceLogic
 
 def init_service():
   ## Init local data storage
@@ -55,15 +55,12 @@ def cleanup():
   return
 
 if __name__ == '__main__':
+  service_routing = SubscriptionServiceRouting()
+
   conf = {
       '/': {
           'tools.sessions.on': False,
-          'tools.staticdir.root': os.path.abspath(os.getcwd())
-      },
-      '/subscriptions': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher()
-          #'tools.response_headers.on': True,
-          #'tools.response_headers.headers': [('Content-Type', 'application/json')],
+          'request.dispatch': service_routing.getRoutesDispatcher()
       }
   }
 
@@ -73,7 +70,4 @@ if __name__ == '__main__':
   cherrypy.engine.subscribe('start', init_service)
   cherrypy.engine.subscribe('stop', cleanup)
 
-  service = SubscriptionServiceRoot()
-  service.subscriptions = SubscriptionServiceSubscriptions()
-
-  cherrypy.quickstart(service, '/subscription-service', conf)
+  cherrypy.quickstart(None, '/subscription-service', conf)

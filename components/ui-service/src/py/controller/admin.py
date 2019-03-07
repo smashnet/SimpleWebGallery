@@ -186,7 +186,7 @@ class AdminController(BaseController):
 
     if len(albuminfo['subscriptions']) > 0:
       # Get file information
-      r = requests.get("http://subscription-service:8080/subscription-service/subscriptions", params={"subscriptions": albuminfo['subscriptions']})
+      r = requests.get("http://subscription-service:8080/subscription-service/subscriptions", params={"subscriptionids": albuminfo['subscriptions']})
       subscriptions = r.json()
 
       for sub in subscriptions:
