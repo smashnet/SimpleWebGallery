@@ -11,6 +11,7 @@ License: MIT License
 '''
 
 import os, os.path
+import sys
 
 import cherrypy
 import redis
@@ -20,7 +21,6 @@ import common
 import config
 
 from service_routing import SubscriptionServiceRouting
-from service_logic import SubscriptionServiceLogic
 
 def init_service():
   ## Init local data storage
