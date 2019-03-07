@@ -19,9 +19,9 @@ import sqlite3
 import common
 import config
 
-from photo_service_root import PhotoServiceRoot
-from photo_service_photos import PhotoServicePhotos
-from photo_service_rawcontent import PhotoServiceRawContent
+from service_routing import PhotoServiceRouting
+from service_logic import PhotoServiceLogic
+
 from delete_files_task_processor import DeleteFilesTaskProcessor
 
 def init_service():
@@ -63,16 +63,12 @@ def cleanup():
   return
 
 if __name__ == '__main__':
+  service_routing = PhotoServiceRouting()
+
   conf = {
       '/': {
           'tools.sessions.on': False,
-          'tools.staticdir.root': os.path.abspath(os.getcwd())
-      },
-      '/photos': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher()
-      },
-      '/rawcontent': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher()
+          'request.dispatch': service_routing.getRoutesDispatcher()
       }
   }
 
@@ -82,8 +78,4 @@ if __name__ == '__main__':
   cherrypy.engine.subscribe('start', init_service)
   cherrypy.engine.subscribe('stop', cleanup)
 
-  service = PhotoServiceRoot()
-  service.photos = PhotoServicePhotos()
-  service.rawcontent = PhotoServiceRawContent()
-
-  cherrypy.quickstart(service, '/photo-service', conf)
+  cherrypy.quickstart(None, '/photo-service', conf)

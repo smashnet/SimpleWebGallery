@@ -55,7 +55,9 @@ class SubscriptionServiceLogic(object):
   def getSubscriptions(self, subscriptionids=None):
     # If no parameter is provided -> error
     if subscriptionids is None:
-      return {"error": "No UUID"}
+      logging.warn("No UUID(s) given in request.")
+      cherrypy.response.status = 400 # Bad request
+      return {"error": "No UUID(s) given in request."}
 
     # Sadly, we have to consider single subscriptions being a raw UUID,
     # and not a list of a single UUID so we have to check and handle this here
@@ -65,6 +67,7 @@ class SubscriptionServiceLogic(object):
         uuid.UUID(subscriptionids, version=4)
       except ValueError:
         logging.warn("At least one item in JSON content is not a UUID")
+        cherrypy.response.status = 400 # Bad request
         return {"error": "At least one item in JSON content is not a UUID"}
 
       subscriptionids = [subscriptionids]

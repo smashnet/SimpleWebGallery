@@ -110,7 +110,7 @@ class AlbumController(BaseController):
 
     if len(albuminfo['files']) > 0:
       # Get file information
-      r = requests.get("http://photo-service:8080/photo-service/photos", params={"files": albuminfo['files']})
+      r = requests.get("http://photo-service:8080/photo-service/photos", params={"photoids": albuminfo['files']})
       files = r.json()
 
       # Prepare template_vars
