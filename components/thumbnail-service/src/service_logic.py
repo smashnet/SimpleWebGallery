@@ -10,13 +10,11 @@ GPG-Fingerprint: A757 5741 FD1E 63E8 357D  48E2 3C68 AE70 B2F8 AA17
 License: MIT License
 '''
 
-import os, os.path
-from datetime import datetime
+import os
 import uuid
 
 import cherrypy
 import sqlite3
-import hashlib
 
 import config
 import common

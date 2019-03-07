@@ -13,14 +13,13 @@ import threading
 import redis
 import logging
 import json
-import hashlib
-from PIL import Image, ExifTags
+
+from PIL import Image
 import io
 from datetime import datetime
 import sqlite3
 
 import config
-import common
 
 class CreateThumbnailTaskProcessor(threading.Thread):
 
@@ -52,11 +51,11 @@ class CreateThumbnailTaskProcessor(threading.Thread):
 
       ## Deleting key with file data from redis
       logging.info("Removing file data from redis")
-      res = self.myRedis.delete(metadata['fileid'])
+      self.myRedis.delete(metadata['fileid'])
 
       ## If successful, remove task from processing list
       logging.info("Finished creating thumbs for file %s" % metadata['fileid'])
-      res = self.myRedis.lrem('create-thumbnail-processing', 0 , task)
+      self.myRedis.lrem('create-thumbnail-processing', 0 , task)
 
   def createThumbsAndStore(self, meta, filedata):
     image = Image.open(io.BytesIO(filedata))

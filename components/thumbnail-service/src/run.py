@@ -11,6 +11,7 @@ License: MIT License
 '''
 
 import os, os.path
+import sys
 
 import cherrypy
 import redis
@@ -20,8 +21,7 @@ import logging
 import common
 import config
 
-from thumbnail_service_routing import ThumbnailServiceRouting
-from thumbnail_service_logic import ThumbnailServiceLogic
+from service_routing import ThumbnailServiceRouting
 from create_thumbnail_task_processor import CreateThumbnailTaskProcessor
 from delete_thumbs_task_processor import DeleteThumbsTaskProcessor
 
