@@ -11,17 +11,12 @@ License: MIT License
 '''
 
 import os, os.path
-from datetime import datetime
 import uuid
 import json
 import logging
-import io
-import time
 
 import cherrypy
 import sqlite3
-import hashlib
-from PIL import Image, ExifTags
 
 import config
 import common
@@ -29,10 +24,6 @@ import common
 from service_file_handling import process_and_store_new_photo
 
 class PhotoServiceLogic(object):
-
-  def __extractExif(self, image):
-    image_tags = image._getexif()
-    return {name: image_tags[id] for id, name in ExifTags.TAGS.items() if id in image_tags}
 
   @cherrypy.tools.accept(media='application/json')
   @cherrypy.tools.json_out()

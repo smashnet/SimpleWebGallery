@@ -13,18 +13,15 @@ License: MIT License
 import os, os.path
 from datetime import datetime
 import uuid
-import json
 import logging
 import io
 import time
 
 import cherrypy
-import sqlite3
 import hashlib
 from PIL import Image, ExifTags
 
 import config
-import common
 
 def extractExif(image):
   image_tags = image._getexif()
