@@ -11,6 +11,7 @@ License: MIT License
 '''
 
 import os, os.path
+import sys
 
 import cherrypy
 import redis

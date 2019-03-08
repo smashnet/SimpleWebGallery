@@ -16,7 +16,6 @@ import json
 import sqlite3
 
 import config
-import common
 
 class AddFileToAlbumTaskProcessor(threading.Thread):
 
@@ -42,4 +41,4 @@ class AddFileToAlbumTaskProcessor(threading.Thread):
 
       ## If successful, remove task from processing list
       logging.info("Removing task from processing list")
-      res = self.myRedis.lrem('add-file-to-album-processing', 0 , task)
+      self.myRedis.lrem('add-file-to-album-processing', 0 , task)

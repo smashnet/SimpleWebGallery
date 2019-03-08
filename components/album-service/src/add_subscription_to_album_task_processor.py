@@ -16,7 +16,6 @@ import json
 import sqlite3
 
 import config
-import common
 
 class AddSubscriptionToAlbumTaskProcessor(threading.Thread):
 
@@ -42,4 +41,4 @@ class AddSubscriptionToAlbumTaskProcessor(threading.Thread):
 
       ## If successful, remove task from processing list
       logging.info("Removing task from processing list")
-      res = self.myRedis.lrem('add-subscription-to-album-processing', 0 , task)
+      self.myRedis.lrem('add-subscription-to-album-processing', 0 , task)

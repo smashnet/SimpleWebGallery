@@ -10,31 +10,25 @@ GPG-Fingerprint: A757 5741 FD1E 63E8 357D  48E2 3C68 AE70 B2F8 AA17
 License: MIT License
 '''
 
-import os, os.path
-from datetime import datetime
-import uuid
-
-import cherrypy
 import sqlite3
-import hashlib
 import json
 
 import config
 import common
 
-def getAlbumInformation(uuid):
+def getAlbumInformation(albumid):
   with sqlite3.connect(config.DB_STRING) as c:
-    r = c.execute("SELECT albumid, name, accesscode, creator, timestamp_created FROM albums WHERE albumid=?", (uuid,))
+    r = c.execute("SELECT albumid, name, accesscode, creator, timestamp_created FROM albums WHERE albumid=?", (albumid,))
     album = common.DBtoDict(r)
     if album == {}: return {}
 
     # Get files information
-    r = c.execute("SELECT fileid FROM album_files WHERE albumid=?", (uuid,))
+    r = c.execute("SELECT fileid FROM album_files WHERE albumid=?", (albumid,))
     res = common.DBtoList(r)
     fileids = [item['fileid'] for item in res]
     album['files'] = fileids
     # Get subscription information
-    r = c.execute("SELECT subscriptionid FROM album_subscriptions WHERE albumid=?", (uuid,))
+    r = c.execute("SELECT subscriptionid FROM album_subscriptions WHERE albumid=?", (albumid,))
     res = common.DBtoList(r)
     subscriptionids = [item['subscriptionid'] for item in res]
     album['subscriptions'] = subscriptionids
