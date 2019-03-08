@@ -1,7 +1,7 @@
 '''
 service_routing.py
 
-Contains the routing logic for the photo service.
+Contains the routing logic for the album service.
 
 Author: Nicolas Inden
 eMail: nico@smashnet.de

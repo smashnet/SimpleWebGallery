@@ -1,5 +1,5 @@
 '''
-album_service_root.py
+service_logic.py
 
 Album service of SimpleWebGallery that manages albums of photos.
 
