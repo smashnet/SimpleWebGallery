@@ -19,9 +19,8 @@ import sqlite3
 import common
 import config
 
-from album_service_root import AlbumServiceRoot
-from album_service_albums import AlbumServiceAlbums
-from album_service_accesscode import AlbumServiceAccessCode
+from service_routing import AlbumServiceRouting
+
 from add_file_to_album_task_processor import AddFileToAlbumTaskProcessor
 from add_subscription_to_album_task_processor import AddSubscriptionToAlbumTaskProcessor
 
@@ -72,20 +71,12 @@ def cleanup():
   return True
 
 if __name__ == '__main__':
+  service_routing = AlbumServiceRouting()
+
   conf = {
       '/': {
           'tools.sessions.on': False,
-          'tools.staticdir.root': os.path.abspath(os.getcwd())
-      },
-      '/albums': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
-          'tools.response_headers.on': True,
-          'tools.response_headers.headers': [('Content-Type', 'application/json')]
-      },
-      '/accesscode': {
-          'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
-          'tools.response_headers.on': True,
-          'tools.response_headers.headers': [('Content-Type', 'application/json')]
+          'request.dispatch': service_routing.getRoutesDispatcher()
       }
   }
 
@@ -95,8 +86,4 @@ if __name__ == '__main__':
   cherrypy.engine.subscribe('start', init_service)
   cherrypy.engine.subscribe('stop', cleanup)
 
-  service = AlbumServiceRoot()
-  service.albums = AlbumServiceAlbums()
-  service.accesscode = AlbumServiceAccessCode()
-
-  cherrypy.quickstart(service, '/album-service', conf)
+  cherrypy.quickstart(None, '/album-service', conf)

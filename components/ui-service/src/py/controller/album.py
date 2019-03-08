@@ -49,7 +49,7 @@ class AlbumController(BaseController):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
     # Resolve access code to id. Returns {} if no album with this code exists
-    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % access_code)
+    r = requests.get("http://album-service:8080/album-service/resolveid/%s" % access_code)
     if r.json() == {}:
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
@@ -98,7 +98,7 @@ class AlbumController(BaseController):
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
     # Resolve access code to id. Returns {} if no album with this code exists
-    r = requests.get("http://album-service:8080/album-service/accesscode/%s" % access_code)
+    r = requests.get("http://album-service:8080/album-service/resolveid/%s" % access_code)
     if r.json() == {}:
       return self.render_template("album/wrongAccessCode.html", template_vars)
 
