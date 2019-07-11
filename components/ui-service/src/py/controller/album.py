@@ -130,3 +130,47 @@ class AlbumController(BaseController):
     template_vars['album_index_url'] = "/album/%s" % access_code
 
     return self.render_template("album/overview.html", template_vars)
+
+  @cherrypy.expose
+  def fullscreen(self, access_code, number):
+    template_vars = {}
+    template_vars["bodyclass"] = "class=main"
+
+    # access_code should be the 8-digit-access-code
+    if not common.isValidAccessCode(access_code):
+      return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    # Resolve access code to id. Returns {} if no album with this code exists
+    r = requests.get("http://album-service:8080/album-service/resolveid/%s" % access_code)
+    if r.json() == {}:
+      return self.render_template("album/wrongAccessCode.html", template_vars)
+
+    albummeta = r.json()
+
+    # Get album information
+    r = requests.get("http://album-service:8080/album-service/albums/%s" % albummeta['albumid'])
+    albuminfo = r.json()
+
+    if len(albuminfo['files']) > 0:
+      # Get file information
+      r = requests.get("http://photo-service:8080/photo-service/photos", params={"photoids": albuminfo['files']})
+      files = r.json()
+
+      # Prepare template_vars
+      template_vars['photos'] = self._prepare_template_vars_album_overview(files)
+
+    template_vars["navlinks"] = [
+    {
+      "name": "Home",
+      "href": "/album/%s" % access_code
+    },
+    {
+      "name": "Fotos",
+      "href": "/album/%s/overview" % access_code
+    }
+    ]
+
+    template_vars['album_index_url'] = "/album/%s" % access_code
+    template_vars['start_index'] = number
+
+    return self.render_template("album/fullscreen.html", template_vars)
