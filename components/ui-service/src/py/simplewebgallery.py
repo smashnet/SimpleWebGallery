@@ -45,6 +45,11 @@ class SimpleWebGallery(object):
               action='overview',
               conditions=dict(method=['GET']))
 
+    d.connect('album_overview', '/album/{access_code}/overview/fullscreen/{number}',
+              controller=AlbumController(),
+              action='fullscreen',
+              conditions=dict(method=['GET']))
+
     d.connect('admin_index', '/admin',
               controller=AdminController(),
               action='index',

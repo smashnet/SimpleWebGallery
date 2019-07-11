@@ -154,7 +154,7 @@ class AdminController(BaseController):
     ]
 
     template_vars['album_index_url'] = "/album/%s" % access_code
-    template_vars['delete_all_url'] = "/album-service/albums/%s/photos/" % albummeta['albumid']
+    template_vars['delete_all_url'] = "/album-service/albums/%s/photos" % albummeta['albumid']
 
     return self.render_template("admin/album_files.html", template_vars)
 

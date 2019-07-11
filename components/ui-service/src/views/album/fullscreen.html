@@ -7,7 +7,7 @@
     <a type="button" class="btn btn-outline-primary" href="{{ album_index_url }}/overview">Zurück zur Übersicht</a>
     <div class="siema">
       {% for photo in photos %}
-      <div><img class="img-thumbnail" src="{{ photo.thumburl }}/1024" width="100%"></div>
+      <div><img class="img-thumbnail" src="{{ photo.thumburl }}/1024" height="100%"></div>
       {% endfor %}
     </div>
     {% else %}
