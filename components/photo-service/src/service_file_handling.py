@@ -25,6 +25,8 @@ import config
 
 def extractExif(image):
   image_tags = image._getexif()
+  if image_tags is None:
+    return {}
   return {name: image_tags[id] for id, name in ExifTags.TAGS.items() if id in image_tags}
 
 def process_and_store_new_photo(file):
