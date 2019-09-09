@@ -52,7 +52,7 @@ class PhotoServiceLogic(object):
           if photo['timestamp_date_time_original'] == 0:
             filename = "%s/%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_uploaded"]+7200)), photo['extension'])
           else:
-            filename = "%s/%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_date_time_original"]+7200)), photo['extension'])
+            filename = "%s/%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_date_time_original"])), photo['extension'])
 
           zip.writestr(filename, the_file.read())
 
