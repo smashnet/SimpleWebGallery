@@ -48,7 +48,7 @@ def getListOfAllAlbums():
                           albums.accesscode, \
                           albums.creator, \
                           albums.timestamp_created, \
-                          COUNT(album_files.fileid) AS number_of_files, \
+                          COUNT(DISTINCT album_files.fileid) AS number_of_files, \
                           COUNT(DISTINCT album_subscriptions.subscriptionid) AS number_of_subscriptions \
                           FROM albums \
                           LEFT JOIN album_files ON albums.albumid=album_files.albumid \
