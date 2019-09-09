@@ -51,8 +51,20 @@ class PhotoServiceLogic(object):
           # Set new filename according to date taken or (if not available) date uploaded
           if photo['timestamp_date_time_original'] == 0:
             filename = "%s/%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_uploaded"]+7200)), photo['extension'])
+            # As zip allows multiple files with the same path and name, we have to check
+            # if there is already a file with the same name in the archive so far.
+            # Unfortunately, taking the server time of upload, this can happen
+            # quite often when uploading multiple files.
+            incr = 1
+            while filename in zip.namelist():
+              filename = "%s/%s_%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_uploaded"]+7200)), incr, photo['extension'])
+              incr += 1
           else:
             filename = "%s/%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_date_time_original"])), photo['extension'])
+            incr = 1
+            while filename in zip.namelist():
+              filename = "%s/%s_%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_date_time_original"]+7200)), incr, photo['extension'])
+              incr += 1
 
           zip.writestr(filename, the_file.read())
 
