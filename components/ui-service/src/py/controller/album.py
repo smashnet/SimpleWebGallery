@@ -35,7 +35,7 @@ class AlbumController(BaseController):
         if item["timestamp_date_time_original"] != 0:
           item["taken"] = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(item["timestamp_date_time_original"]))
         else:
-          item["taken"] = "Date unknown"
+          item["taken"] = "Up: %s" % item["uploaded"]
     return photos
 
   @cherrypy.expose
@@ -115,6 +115,9 @@ class AlbumController(BaseController):
 
       # Prepare template_vars
       template_vars['photos'] = self._prepare_template_vars_album_overview(files)
+
+      # Prepare album download link
+      template_vars['download_album_url'] = "/photo-service/photos/zip?zipname=%s&photoids=%s" % (albuminfo['name'],"&photoids=".join(albuminfo['files']))
 
     template_vars["navlinks"] = [
     {

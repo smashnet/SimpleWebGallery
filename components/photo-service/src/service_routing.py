@@ -30,6 +30,11 @@ class PhotoServiceRouting(object):
               action='getPhotoData',
               conditions=dict(method=['GET']))
 
+    d.connect('get_photos_zip', '/photos/zip',
+              controller=PhotoServiceLogic(),
+              action='getPhotosZip',
+              conditions=dict(method=['GET']))
+
     d.connect('get_photo_info', '/photos/{photoid}',
               controller=PhotoServiceLogic(),
               action='getPhotoInfo',

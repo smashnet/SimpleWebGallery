@@ -14,6 +14,9 @@ import os, os.path
 import uuid
 import json
 import logging
+import io
+import time
+from zipfile import ZipFile
 
 import cherrypy
 import sqlite3
@@ -31,6 +34,31 @@ class PhotoServiceLogic(object):
     return {"message": "Hello world!",
             "service": config.NAME,
             "version": config.VERSION}
+
+  @cherrypy.tools.accept(media='application/json')
+  def getPhotosZip(self, photoids=None, zipname=None):
+    photosinfo = self.getPhotosInfo(photoids)
+    if 'error' in photosinfo:
+      return photosinfo
+    inmemoryzip = io.BytesIO()
+    if zipname is None:
+      zipname = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(time.time()+7200))
+    # Create zip of requested photos
+    with ZipFile(inmemoryzip, "w") as zip:
+      # Go through photos
+      for photo in photosinfo:
+        with open(config.PHOTO_DIR + "/%s%s" % (photo['fileid'], photo['extension']), "rb") as the_file:
+          # Set new filename according to date taken or (if not available) date uploaded
+          if photo['timestamp_date_time_original'] == 0:
+            filename = "%s/%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_uploaded"]+7200)), photo['extension'])
+          else:
+            filename = "%s/%s%s" % (zipname, time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime(photo["timestamp_date_time_original"]+7200)), photo['extension'])
+
+          zip.writestr(filename, the_file.read())
+
+    cherrypy.response.headers['Content-Disposition'] = 'attachment; filename="%s.zip"' % zipname
+    cherrypy.response.headers['Content-Type'] = "application/zip"
+    return inmemoryzip.getvalue()
 
   def getPhotoData(self, photoid=None):
     # Check if uuid given
