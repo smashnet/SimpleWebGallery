@@ -74,7 +74,7 @@ class AlbumController(BaseController):
     template_vars["navlinks"] = [
     {
       "name": "Home",
-      "href": "/album/%s/" % access_code
+      "href": "/album/%s" % access_code
     },
     {
       "name": "Fotos",
