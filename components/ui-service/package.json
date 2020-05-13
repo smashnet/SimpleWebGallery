@@ -20,7 +20,7 @@
   "homepage": "https://github.com/smashnet/SimpleWebGallery#readme",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",
-    "bootstrap": "^4.4.1",
+    "bootstrap": "^4.5.0",
     "dropzone": "^5.7.0",
     "faucet-pipeline-js": "^1.1.1",
     "faucet-pipeline-sass": "^1.4.0",
