@@ -19,11 +19,11 @@
   },
   "homepage": "https://github.com/smashnet/SimpleWebGallery#readme",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.13.0",
-    "bootstrap": "^4.5.0",
-    "dropzone": "^5.7.0",
-    "faucet-pipeline-js": "^2.1.2",
-    "faucet-pipeline-sass": "^1.4.0",
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "bootstrap": "^4.6.0",
+    "dropzone": "^5.9.2",
+    "faucet-pipeline-js": "^2.1.7",
+    "faucet-pipeline-sass": "^1.7.0",
     "siema": "^1.5.1"
   }
 }
